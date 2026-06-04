@@ -370,14 +370,24 @@ function mapOp(rows) {
   }));
 }
 function aplicarDados(gsRent, gsOp, periodo, fonte) {
-  document.getElementById('rent-periodo').textContent = periodo;
-  document.getElementById('rent-status').textContent  = '✅ ' + fonte;
+  const elPeriodo = document.getElementById('rent-periodo');
+  const elStatus  = document.getElementById('rent-status');
+  if (elPeriodo) elPeriodo.textContent = periodo;
+  if (elStatus)  elStatus.innerHTML = '<span style="color:#1a7a3c;font-size:16px" title="Dados atualizados">✅</span>';
   DADOS_RENT.length = 0; gsRent.forEach(x => DADOS_RENT.push(x));
   DADOS_OP.length   = 0; gsOp.forEach(x => DADOS_OP.push(x));
   rentFiltrado = [...DADOS_RENT];
   opFiltrado   = [...DADOS_OP];
-  renderRentabilidade(rentFiltrado);
-  renderOperacional(opFiltrado);
+  // Aguarda DOM estar pronto antes de renderizar
+  if (document.getElementById('tbody-rent')) {
+    renderRentabilidade(rentFiltrado);
+    renderOperacional(opFiltrado);
+  } else {
+    window.addEventListener('DOMContentLoaded', () => {
+      renderRentabilidade(rentFiltrado);
+      renderOperacional(opFiltrado);
+    });
+  }
 }
 function usarDadosLocais(motivo) {
   console.warn('Fallback local:', motivo);
@@ -414,8 +424,9 @@ async function carregarGoogleSheets() {
 
 // Inicializa ao carregar a página
 window.addEventListener('DOMContentLoaded', async () => {
-  await carregarGoogleSheets();
-  popularSelectFundos();
+  popularSelectFundos();        // popula selects imediatamente com dados locais
+  await carregarGoogleSheets(); // depois busca Google Sheets e re-renderiza
+  popularSelectFundos();        // re-popula selects com dados atualizados
 });
 
 
@@ -425,30 +436,24 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // Popula select com fundos da lista de rentabilidade
 function popularSelectFundos() {
-  // Simulador de Receitas
-  const selR = document.getElementById('fundo');
-  if (selR) {
-    selR.innerHTML = '';
+  const selIds = [
+    { id: 'fundo',      m12: false },  // Receitas
+    { id: 'comp-fundo', m12: true  },  // Comparativo
+    { id: 'mega-fundo', m12: true  },  // Mega Simulador
+  ];
+  selIds.forEach(({ id, m12 }) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = '';
     DADOS_RENT.forEach(f => {
       const opt = document.createElement('option');
       opt.value = f.taxa;
       opt.setAttribute('data-nome', f.nome);
-      selR.appendChild(opt);
-    });
-  }
-  // Simulador Comparativo
-  const selC = document.getElementById('comp-fundo');
-  if (selC) {
-    selC.innerHTML = '';
-    DADOS_RENT.forEach(f => {
-      const opt = document.createElement('option');
-      opt.value = f.taxa;
-      opt.setAttribute('data-nome', f.nome);
-      opt.setAttribute('data-m12', f.m12 || 0);
+      if (m12) opt.setAttribute('data-m12', f.m12 || 0);
       opt.textContent = f.nome;
-      selC.appendChild(opt);
+      sel.appendChild(opt);
     });
-  }
+  });
 }
 
 // Tabela IOF (% sobre rendimento por dia)
@@ -671,11 +676,7 @@ function calcularComparativo() {
 }
 
 // Inicializa select após dados carregados
-const _origCarregar = carregarGoogleSheets;
-carregarGoogleSheets = async function() {
-  await _origCarregar();
-  popularSelectFundos();
-};
+// Hook removed - popularSelectFundos called directly in DOMContentLoaded
 
 
 // ============================================================
@@ -942,11 +943,7 @@ function calcularMega() {
 }
 
 // Hook para popular o select do mega simulador junto com os outros
-const _origPopular = popularSelectFundos;
-popularSelectFundos = function() {
-  _origPopular();
-  popularSelectMega();
-};
+// Mega select populated in DOMContentLoaded via popularSelectFundos
 
 // ---- Diagnóstico de conexão Google Sheets ----
 async function diagnosticarGS() {
@@ -2362,14 +2359,17 @@ function calcularReceita() {
     document.getElementById('textoGapTopo').textContent = 'Atenção! Ao optar por este fundo, a agência deixa de arrecadar este valor em comparação ao BNB Automático.';
   }
 
-  // Gráfico com TODOS os fundos, ordenados por receita
-  const todosFundos = DADOS_RENT
-    .map(f => ({ nome: f.nome.replace('BNB ','').replace(' FIF',''), receita: calcular(f.taxa, valorAplicado, diasUteis), isSel: f.nome === nomeFundo }))
-    .sort((a,b) => b.receita - a.receita);
-
-  const labelsGrafico = todosFundos.map(f => f.nome);
-  const dadosGrafico  = todosFundos.map(f => f.receita);
-  const coresGrafico  = todosFundos.map(f => f.isSel ? '#A6193C' : f.nome.includes('AUTOMÁTICO') || f.nome.includes('Automático') ? '#F68B1F' : '#c5d0f5');
+  // Gráfico: fundo selecionado (vermelho) x BNB Automático (laranja)
+  let labelsGrafico, dadosGrafico, coresGrafico;
+  if (isAutomatico) {
+    labelsGrafico = ['BNB Automático'];
+    dadosGrafico  = [receitaSelecionado];
+    coresGrafico  = ['#A6193C'];
+  } else {
+    labelsGrafico = [nomeFundo.replace('BNB ','').replace(' FIF',''), 'BNB Automático'];
+    dadosGrafico  = [receitaSelecionado, receitaAutomatico];
+    coresGrafico  = ['#A6193C', '#F68B1F'];
+  }
   renderizarGrafico(labelsGrafico, dadosGrafico, coresGrafico);
 }
 
@@ -2412,27 +2412,46 @@ function calcularEsforco() {
   const diasTotal = parseInt(document.getElementById('diasTotal').value);
   const diasDecorridos = parseInt(document.getElementById('diasDecorridos').value);
 
-  if (meta <= 0 || isNaN(diasTotal) || isNaN(diasDecorridos) || diasDecorridos <= 0) {
-    showNotif('notif-saldo', '⚠️ Por favor, preencha todos os campos corretamente.', 'error');
-    return;
+  // Valida campos obrigatórios com mensagens específicas
+  if (meta <= 0) {
+    showNotif('notif-saldo', '⚠️ Informe a meta de saldo médio.', 'error'); return;
   }
-  const diasRestantes = diasTotal - diasDecorridos;
+  if (saldoPosicao <= 0) {
+    showNotif('notif-saldo', '⚠️ Informe o saldo posição atual.', 'error'); return;
+  }
+  // diasDecorridos vem do campo hidden preenchido pela data
+  const dataPos = document.getElementById('dataPosicao')?.value;
+  if (!dataPos && (isNaN(diasDecorridos) || diasDecorridos <= 0)) {
+    showNotif('notif-saldo', '⚠️ Selecione a data da posição para calcular os dias automaticamente.', 'error'); return;
+  }
+  // Re-lê diasDecorridos (pode ter sido preenchido manualmente ou via data)
+  const diasDecorridosFinal = isNaN(diasDecorridos) || diasDecorridos <= 0
+    ? parseInt(document.getElementById('diasDecorridos').value) || 0
+    : diasDecorridos;
+  if (diasDecorridosFinal <= 0) {
+    showNotif('notif-saldo', '⚠️ Selecione a data da posição.', 'error'); return;
+  }
+  const diasRestantes = diasTotal - diasDecorridosFinal;
   if (diasRestantes <= 0) {
-    showNotif('notif-saldo', '⚠️ O número de dias decorridos deve ser menor que o total de dias úteis.', 'error');
-    return;
+    showNotif('notif-saldo', '⚠️ A data da posição já ultrapassou o fim do ano.', 'error'); return;
   }
 
   btn.disabled = true;
   btn.textContent = 'Calculando...';
   setTimeout(() => { btn.disabled = false; btn.textContent = 'Calcular Esforço Diário'; }, 600);
 
-  const calculo = (meta * diasTotal - saldoMedio * diasDecorridos - diasRestantes * saldoPosicao) * 2 / (diasRestantes * (diasRestantes + 1));
+  const calculo = (meta * diasTotal - saldoMedio * diasDecorridosFinal - diasRestantes * saldoPosicao) * 2 / (diasRestantes * (diasRestantes + 1));
 
   const valorEsforcoEl = document.getElementById('valorEsforco');
   const textoComercialEl = document.getElementById('textoComercial');
   const urgenciaTextoEl = document.getElementById('urgenciaTexto');
 
   urgenciaTextoEl.innerHTML = '⏳ Atenção: Faltam apenas <strong>' + diasRestantes + ' dias úteis</strong> para o fim do ano!';
+  // Exibe dias decorridos no display caso ainda não esteja preenchido
+  const ddDisplay = document.getElementById('diasDecorridosDisplay');
+  const drDisplay = document.getElementById('diasRestantesDisplay');
+  if (ddDisplay && ddDisplay.textContent === '—') ddDisplay.textContent = diasDecorridosFinal;
+  if (drDisplay && drDisplay.textContent === '—') drDisplay.textContent = diasRestantes;
 
   if (calculo <= 0) {
     valorEsforcoEl.textContent = '🎉 META BATIDA!';
@@ -2454,7 +2473,7 @@ function calcularEsforco() {
 
   // Sem captação: mantém posição atual até 31/12
   const semCaptPosicao = saldoPosicao;
-  const semCaptSaldoMedio = (saldoMedio * diasDecorridos + saldoPosicao * diasRestantes) / diasTotal;
+  const semCaptSaldoMedio = (saldoMedio * diasDecorridosFinal + saldoPosicao * diasRestantes) / diasTotal;
   document.getElementById('semCaptacaoPosicao').textContent    = formatarMoeda(semCaptPosicao);
   document.getElementById('semCaptacaoSaldoMedio').textContent = formatarMoeda(semCaptSaldoMedio);
   document.getElementById('resultadoBoxSaldo').style.display = 'block';
