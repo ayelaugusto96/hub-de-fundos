@@ -5,7 +5,165 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <title>Hub de Fundos | BNB Investimentos</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'>
+// Mapeamento de risco por fundo
+const RISCO_MAP = {
+  'BNB AUTOMÁTICO FIF':                  'Baixo',
+  'BNB SETOR PÚBLICO FIF':               'Baixo',
+  'BNB CLÁSSICO FIF':                    'Baixo',
+  'BNB CONTA RESERVA FIF':               'Baixo',
+  'BNB ESPECIAL FIF':                    'Baixo',
+  'BNB ESSENCIAL FIF':                   'Baixo',
+  'BNB FUNCIONÁRIO FIF':                 'Baixo',
+  'BNB SOBERANO FIF':                    'Baixo',
+  'BNB INSTITUCIONAL FIF':               'Baixo',
+  'BNB MÁXIMO FIF':                      'Baixo',
+  'BNB PLUS FIF':                        'Baixo',
+  'BNB FÁCIL FIF':                       'Baixo',
+  'BNB DIGITAL FIF':                     'Baixo',
+  'BNB IMA-B FIF':                       'Médio',
+  'BNB IPCA FIF':                        'Médio',
+  'BNB IRF-M 1 TÍTULOS PÚBLICOS FIF':    'Médio',
+  'BNB MULTIMERCADO FIF':                'Médio',
+  'BNB SELEÇÃO AÇÕES FIF':               'Alto',
+  'BNB ASG FIF':                         'Alto',
+};
+
+// Mapeamento de classe por fundo
+const CLASSE_MAP = {
+  'BNB AUTOMÁTICO FIF':'Renda Fixa','BNB SETOR PÚBLICO FIF':'Renda Fixa',
+  'BNB CLÁSSICO FIF':'Renda Fixa','BNB CONTA RESERVA FIF':'Renda Fixa',
+  'BNB ESPECIAL FIF':'Renda Fixa','BNB ESSENCIAL FIF':'Renda Fixa',
+  'BNB FUNCIONÁRIO FIF':'Renda Fixa','BNB SOBERANO FIF':'Renda Fixa',
+  'BNB INSTITUCIONAL FIF':'Renda Fixa','BNB MÁXIMO FIF':'Renda Fixa',
+  'BNB PLUS FIF':'Renda Fixa','BNB FÁCIL FIF':'Renda Fixa',
+  'BNB DIGITAL FIF':'Renda Fixa','BNB IMA-B FIF':'Renda Fixa',
+  'BNB IPCA FIF':'Renda Fixa','BNB IRF-M 1 TÍTULOS PÚBLICOS FIF':'Renda Fixa',
+  'BNB MULTIMERCADO FIF':'Multimercado',
+  'BNB SELEÇÃO AÇÕES FIF':'Ações','BNB ASG FIF':'Ações',
+};
+
+// Cores por benchmark
+const BM_CORES = {
+  'CDI':         {bg:'#e8f4fd',color:'#1a5276'},
+  'IMA-B':       {bg:'#e8f8f5',color:'#1a7a3c'},
+  'IMA-B 5':     {bg:'#d5f5e3',color:'#1e8449'},
+  'IRF-M 1':     {bg:'#fef9e7',color:'#b7950b'},
+  'IBOVESPA B3': {bg:'#fdf2f8',color:'#76448a'},
+  'ISE-B3':      {bg:'#fef5e7',color:'#ca6f1e'},
+  '—':           {bg:'#f2f3f4',color:'#888'},
+};
+
+function badgeBM(bm) {
+  const c = BM_CORES[bm] || {bg:'#f0f4ff',color:'#3b5bdb'};
+  return `<span class="badge-bm" style="background:${c.bg};color:${c.color}">${bm}</span>`;
+}
+
+function badgeRisco(risco) {
+  const map = {
+    'Baixo':  {bg:'#f0fff4',color:'#1a7a3c'},
+    'Médio':  {bg:'#fffbea',color:'#b7791f'},
+    'Alto':   {bg:'#fff3f0',color:'#c0392b'},
+  };
+  const c = map[risco] || {bg:'#f2f3f4',color:'#888'};
+  return `<span class="badge-prazo" style="background:${c.bg};color:${c.color}">${risco||'—'}</span>`;
+}
+
+function badgePrazo(p) {
+  if (p === 'D+0')   return `<span class="badge-prazo badge-d0">${p}</span>`;
+  if (p.startsWith('D+1')) return `<span class="badge-prazo badge-d1">${p}</span>`;
+  return `<span class="badge-prazo badge-d3">${p}</span>`;
+}
+
+// Calcula dias úteis automaticamente a partir da data da posição
+function calcularDiasAutomatico() {
+  const dataInput = document.getElementById('dataPosicao').value;
+  if (!dataInput) return;
+
+  const dataPos = new Date(dataInput + 'T12:00:00');
+  const anoAtual = dataPos.getFullYear();
+  const inicioAno = new Date(anoAtual + '-01-01T12:00:00');
+  const fimAno    = new Date(anoAtual + '-12-31T12:00:00');
+
+  // Conta dias úteis (seg-sex) entre duas datas, base 252
+  function contarDU(de, ate) {
+    let count = 0;
+    const cur = new Date(de);
+    while (cur <= ate) {
+      const dow = cur.getDay();
+      if (dow !== 0 && dow !== 6) count++;
+      cur.setDate(cur.getDate() + 1);
+    }
+    return count;
+  }
+
+  const duAno       = 252; // base fixa
+  const duDecorridos = contarDU(inicioAno, dataPos);
+  const duRestantes  = duAno - duDecorridos;
+
+  document.getElementById('diasDecorridos').value = duDecorridos;
+  document.getElementById('diasTotal').value = duAno;
+  document.getElementById('diasDecorridosDisplay').textContent = duDecorridos;
+  document.getElementById('diasRestantesDisplay').textContent  = Math.max(0, duRestantes);
+}
+
+// ---- Modal fundo operacional ----
+function abrirModalFundo(nome) {
+  const op = DADOS_OP.find(f => f.nome === nome);
+  const rent = DADOS_RENT.find(f => f.nome === nome);
+  const risco = RISCO_MAP[nome] || '—';
+  const classe = CLASSE_MAP[nome] || '—';
+
+  document.getElementById('modal-fundo-nome').textContent = nome;
+
+  const rows = op ? [
+    ['Aplicação Inicial',    op.min],
+    ['Aplicação Adicional',  op.adic],
+    ['Saldo Mínimo',         op.saldo],
+    ['Prazo de Resgate',     op.prazo],
+    ['Estratégia',           op.class],
+    ['Benchmark',            op.bm],
+    ['Público-Alvo',         op.publico],
+  ] : [];
+
+  const rentRows = rent ? [
+    ['Rentabilidade (mês)',     rent.mes !== null ? String(rent.mes).replace('.',',') + '%' : '—'],
+    ['Rentabilidade (no ano)',  rent.ano !== null ? String(rent.ano).replace('.',',') + '%' : '—'],
+    ['Rentabilidade (12m)',     rent.m12 !== null ? String(rent.m12).replace('.',',') + '%' : '—'],
+    ['Taxa Global a.a.',        rent.taxa ? String(rent.taxa).replace('.',',') + '%' : '—'],
+    ['PL Médio 12M',            rent.pl ? 'R$ ' + rent.pl : '—'],
+  ] : [];
+
+  document.getElementById('modal-fundo-body').innerHTML = `
+    <div style='display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap'>
+      ${badgeBM(rent ? rent.bm : '—')}
+      ${badgeRisco(risco)}
+      <span class="badge-bm" style="background:#f3e8ff;color:#6b3fa0">${classe}</span>
+    </div>
+    <div style='font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px'>Rentabilidade</div>
+    ${rentRows.map(([k,v]) => `
+      <div style='display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px'>
+        <span style='color:#888;font-weight:600'>${k}</span>
+        <span style='font-weight:800;color:#1a1a2e'>${v}</span>
+      </div>`).join('')}
+    <div style='font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px'>Operacional</div>
+    ${rows.map(([k,v]) => `
+      <div style='display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px'>
+        <span style='color:#888;font-weight:600'>${k}</span>
+        <span style='font-weight:700;color:#1a1a2e;text-align:right;max-width:55%'>${v}</span>
+      </div>`).join('')}
+  `;
+  document.getElementById('modal-fundo').style.display = 'block';
+}
+
+function fecharModalFundo(e) {
+  if (e.target === document.getElementById('modal-fundo'))
+    document.getElementById('modal-fundo').style.display = 'none';
+}
+
+// ---- calcularEsforco — add semCaptacao cards ----
+
+</script>
 <script>
 const GS_ID = '10Ue3Ts2x7hG1bJUDYs_BCGnBJwOATUR6r1l6Vg6oKos';
 const GS_PUB_ID = '2PACX-1vSdeTPrsmpuxpBYwdEnC1VcQ4HAHLuBRLj5eloJm8Bs6CN10AKRulwpgDMfPNDIaac250hcqevGrvYG';
@@ -87,40 +245,57 @@ function renderRentabilidade(dados) {
   if (!dados.length) { tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:30px;color:#aaa">Nenhum fundo encontrado.</td></tr>'; return; }
   tbody.innerHTML = dados.map((f,i) => `
     <tr>
-      <td class="col-nome">${f.nome}</td>
-      <td style="text-align:center"><span class="badge-bm">${f.bm}</span></td>
-      <td style="text-align:center">${fmtRent(f.mes)}</td>
+      <td class="col-nome" style="cursor:pointer" onclick="abrirModalFundo('${f.nome.replace(/'/g,"\\'")}')">
+        <span style="text-decoration:underline dotted;text-underline-offset:3px">${f.nome}</span>
+        <small style="color:#aaa;font-size:10px;display:block">${CLASSE_MAP[f.nome]||''} · ${RISCO_MAP[f.nome]||''}</small>
+      </td>
+      <td style="text-align:center">${badgeBM(f.bm)}</td>
+      <td style="text-align:center">${fmtRent(parseFloat(String(f.mes).replace(',','.')))}</td>
       <td style="text-align:center">${fmtBM(f.bm_mes)}</td>
-      <td style="text-align:center">${fmtRent(f.ano)}</td>
+      <td style="text-align:center">${fmtRent(parseFloat(String(f.ano).replace(',','.')))}</td>
       <td style="text-align:center">${fmtBM(f.bm_ano)}</td>
-      <td style="text-align:center">${fmtRent(f.m12)}</td>
+      <td style="text-align:center">${fmtRent(parseFloat(String(f.m12||'').replace(',','.')))}</td>
       <td style="text-align:center">${fmtBM(f.bm_m12)}</td>
-      <td style="text-align:center">${fmtRent(f.m24)}</td>
+      <td style="text-align:center">${fmtRent(parseFloat(String(f.m24||'').replace(',','.')))}</td>
       <td style="text-align:center">${fmtBM(f.bm_m24)}</td>
-      <td style="text-align:center;font-weight:700;color:#555">${f.taxa ? f.taxa.toFixed(4).replace('.',',')+'%' : '—'}</td>
-      <td style="text-align:center;color:#555;font-size:12px">R$ ${f.pl}</td>
+      <td style="text-align:center;font-weight:700;color:#555">${f.taxa ? parseFloat(String(f.taxa).replace(',','.')).toFixed(4).replace('.',',')+'%' : '—'}</td>
+      <td style="text-align:center;color:#555;font-size:12px">${f.pl ? 'R$ '+f.pl : '—'}</td>
     </tr>`).join('');
 }
 
 function renderOperacional(dados) {
   const tbody = document.getElementById('tbody-op');
-  if (!dados.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:#aaa">Nenhum fundo encontrado.</td></tr>'; return; }
-  tbody.innerHTML = dados.map(f => `
+  if (!dados.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:#aaa">Nenhum fundo encontrado.</td></tr>'; return; }
+  tbody.innerHTML = dados.map(f => {
+    const risco = RISCO_MAP[f.nome] || '—';
+    return `
     <tr>
       <td class="col-nome">${f.nome}</td>
       <td style="text-align:center;font-weight:700">${f.min}</td>
       <td style="text-align:center">${f.adic}</td>
       <td style="text-align:center">${f.saldo}</td>
-      <td style="text-align:center"><span class="${prazoClass(f.prazo)}">${f.prazo}</span></td>
-      <td style="text-align:center"><span class="badge-bm">${f.class}</span></td>
-      <td style="text-align:center"><span class="badge-bm" style="background:#f5f0ff;color:#6b3fa0">${f.bm}</span></td>
+      <td style="text-align:center">${badgePrazo(f.prazo)}</td>
+      <td style="text-align:center;color:#888">${f.class}</td>
+      <td style="text-align:center">${badgeBM(f.bm)}</td>
+      <td style="text-align:center">${badgeRisco(risco)}</td>
       <td style="font-size:12px;color:#555">${f.publico}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function filtrarRentabilidade() {
-  const q = document.getElementById('rent-busca').value.toLowerCase();
-  rentFiltrado = DADOS_RENT.filter(f => f.nome.toLowerCase().includes(q));
+  const q       = document.getElementById('rent-busca').value.toLowerCase();
+  const classe  = document.getElementById('rent-filtro-classe')?.value  || '';
+  const bm      = document.getElementById('rent-filtro-bm')?.value      || '';
+  const risco   = document.getElementById('rent-filtro-risco')?.value   || '';
+
+  rentFiltrado = DADOS_RENT.filter(f => {
+    const nomeOk   = f.nome.toLowerCase().includes(q);
+    const classeOk = !classe || (CLASSE_MAP[f.nome] || '') === classe;
+    const bmOk     = !bm    || f.bm === bm;
+    const riscoOk  = !risco || (RISCO_MAP[f.nome] || '') === risco;
+    return nomeOk && classeOk && bmOk && riscoOk;
+  });
   renderRentabilidade(rentFiltrado);
 }
 function filtrarOperacional() {
@@ -174,14 +349,18 @@ async function csvQuery(gid) {
   return parseCSV(await res.text());
 }
 
+function toNum(v) {
+  if (v === null || v === undefined || v === '' || v === '—') return null;
+  return parseFloat(String(v).replace(',','.')) || null;
+}
 function mapRent(rows) {
   return rows.filter(r => r[0]).map(r => ({
     nome:  r[0]||'', inicio:r[1]||'', bm:r[2]||'',
-    mes:   parseFloat(r[3])||null,  bm_mes: r[4]||'—',
-    ano:   parseFloat(r[5])||null,  bm_ano: r[6]||'—',
-    m12:   parseFloat(r[7])||null,  bm_m12: r[8]||'—',
-    m24:   parseFloat(r[9])||null,  bm_m24: r[10]||'—',
-    taxa:  parseFloat(r[11])||0,    pl:     r[12]||'—'
+    mes:   toNum(r[3]),  bm_mes: r[4]||'—',
+    ano:   toNum(r[5]),  bm_ano: r[6]||'—',
+    m12:   toNum(r[7]),  bm_m12: r[8]||'—',
+    m24:   toNum(r[9]),  bm_m24: r[10]||'—',
+    taxa:  toNum(r[11])||0, pl:  r[12]||'—'
   }));
 }
 function mapOp(rows) {
@@ -202,7 +381,7 @@ function aplicarDados(gsRent, gsOp, periodo, fonte) {
 }
 function usarDadosLocais(motivo) {
   console.warn('Fallback local:', motivo);
-  document.getElementById('rent-status').textContent = '📌 Dados locais (Abril/2026)';
+  document.getElementById('rent-status').innerHTML = '<span style="color:#e07a10;font-size:14px" title="Dados locais Abril/2026">📌</span>';
   document.getElementById('rent-periodo').textContent = 'Abril/2026';
   rentFiltrado = [...DADOS_RENT];
   opFiltrado   = [...DADOS_OP];
@@ -246,17 +425,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // Popula select com fundos da lista de rentabilidade
 function popularSelectFundos() {
-  const sel = document.getElementById('comp-fundo');
-  if (!sel) return;
-  sel.innerHTML = '';
-  DADOS_RENT.forEach(f => {
-    const opt = document.createElement('option');
-    opt.value = f.taxa;
-    opt.setAttribute('data-nome', f.nome);
-    opt.setAttribute('data-m12', f.m12 || 0);
-    opt.textContent = f.nome;
-    sel.appendChild(opt);
-  });
+  // Simulador de Receitas
+  const selR = document.getElementById('fundo');
+  if (selR) {
+    selR.innerHTML = '';
+    DADOS_RENT.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.taxa;
+      opt.setAttribute('data-nome', f.nome);
+      selR.appendChild(opt);
+    });
+  }
+  // Simulador Comparativo
+  const selC = document.getElementById('comp-fundo');
+  if (selC) {
+    selC.innerHTML = '';
+    DADOS_RENT.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f.taxa;
+      opt.setAttribute('data-nome', f.nome);
+      opt.setAttribute('data-m12', f.m12 || 0);
+      opt.textContent = f.nome;
+      selC.appendChild(opt);
+    });
+  }
 }
 
 // Tabela IOF (% sobre rendimento por dia)
@@ -1231,14 +1423,15 @@ table tbody tr:last-child td { border-bottom: none; }
 }
 .badge-prazo {
   display: inline-block;
-  background: #fff3f0;
-  color: #c0392b;
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 700;
 }
-.badge-d0 { background: #f0fff4; color: #1a7a3c; }
+.badge-d0  { background: #f0fff4; color: #1a7a3c; }
+.badge-d1  { background: #fffbea; color: #b7791f; }
+.badge-d3  { background: #fff3eb; color: #c05621; }
+.badge-d0_old { background: #f0fff4; color: #1a7a3c; }
 .rent-pos { color: #1a7a3c; font-weight: 700; }
 .rent-neg { color: #c0392b; font-weight: 700; }
 .rent-bm  { font-size: 11px; color: #888; }
@@ -1459,10 +1652,7 @@ table tbody tr:last-child td { border-bottom: none; }
           <div id='notif-receita' class='notif'></div>
           <div class='form-group'>
             <label for='fundo'>Selecione o Fundo:</label>
-            <select id='fundo'>
-              <option value='1.6875' data-nome='BNB Automático'>BNB Automático</option>
-              <option value='0.1875' data-nome='BNB Soberano'>BNB Soberano</option>
-            </select>
+            <select id='fundo'></select>
           </div>
           <div class='form-group'>
             <label for='valor'>Valor Aplicado:</label>
@@ -1523,16 +1713,22 @@ table tbody tr:last-child td { border-bottom: none; }
             <label for='saldoPosicao'>Saldo Posição Atual:</label>
             <input type='text' id='saldoPosicao' placeholder='R$ 0,00' oninput='mascaraMoeda(event)'>
           </div>
-          <div class='row'>
-            <div class='col form-group'>
-              <label for='diasTotal'>Total de Dias Úteis:</label>
-              <input type='number' id='diasTotal' value='252'>
-            </div>
-            <div class='col form-group'>
-              <label for='diasDecorridos'>Dias Úteis Decorridos:</label>
-              <input type='number' id='diasDecorridos' placeholder='Ex: 98'>
+          <div class='form-group'>
+            <label for='dataPosicao'>Data da Posição: <span style='font-weight:400;color:#999;font-size:11px'>sistema calcula os dias automaticamente</span></label>
+            <input type='date' id='dataPosicao' oninput='calcularDiasAutomatico()'>
+            <div style='margin-top:8px;display:flex;gap:10px'>
+              <div style='flex:1;background:#f8f8f8;border:1px solid #eee;border-radius:8px;padding:8px 12px;font-size:12px'>
+                <div style='color:#aaa;font-weight:600'>Dias úteis decorridos</div>
+                <div id='diasDecorridosDisplay' style='font-size:18px;font-weight:800;color:#1a1a2e'>—</div>
+              </div>
+              <div style='flex:1;background:#f8f8f8;border:1px solid #eee;border-radius:8px;padding:8px 12px;font-size:12px'>
+                <div style='color:#aaa;font-weight:600'>Dias úteis restantes</div>
+                <div id='diasRestantesDisplay' style='font-size:18px;font-weight:800;color:#A6193C'>—</div>
+              </div>
             </div>
           </div>
+          <input type='hidden' id='diasTotal' value='252'>
+          <input type='hidden' id='diasDecorridos' value=''>
           <button class='action' id='btn-calcular-saldo' onclick='calcularEsforco()'>Calcular Esforço Diário</button>
           <button class='btn-clear' onclick='limparSaldo()'>↺ Limpar campos</button>
         </div>
@@ -1540,33 +1736,11 @@ table tbody tr:last-child td { border-bottom: none; }
 
       <div class='card'>
         <div class='card-body'>
-          <div class='results-grid'>
-            <div class='metric metric-neutral'>
-              <div class='label'>Captação líquida diária necessária</div>
-              <div class='value' id='valorEsforco'>—</div>
-              <div class='help'>Indicador principal do esforço comercial.</div>
-            </div>
-            <div class='metric metric-neutral'>
-              <div class='label'>Dias úteis restantes</div>
-              <div class='value' id='diasRestantesTopo'>—</div>
-              <div class='help'>Base temporal para o esforço comercial.</div>
-            </div>
-            <div class='metric metric-neutral'>
-              <div class='label'>Captação líquida total necessária</div>
-              <div class='value' id='captacaoTotalTopo'>—</div>
-              <div class='help'>Volume total a captar no período restante.</div>
-            </div>
-            <div class='metric metric-neutral'>
-              <div class='label'>Saldo posição estimado em 31/12</div>
-              <div class='value' id='saldoEstimadoTopo'>—</div>
-              <div class='help'>Projeção da posição final implícita.</div>
-            </div>
-          </div>
-
           <div class='chart-box' id='resultadoBoxSaldo'>
-            <div class='result-title'>Captação Líquida Diária Necessária</div>
+            <!-- VELOCÍMETRO PRIMEIRO: como estou agora -->
+            <div class='result-title'>📍 Situação Atual da Meta</div>
             <div class='urgencia-box' id='urgenciaTexto'></div>
-            <div class='chart-container' style='height:240px'>
+            <div class='chart-container' style='height:220px'>
               <canvas id='graficoVelocimetro'></canvas>
               <div class='chart-label' id='percentualTexto'>0%<span>da Meta Atingida</span></div>
             </div>
@@ -1577,7 +1751,47 @@ table tbody tr:last-child td { border-bottom: none; }
               <div class='gauge-legend-item'><div class='gauge-dot' style='background:#EDE818'></div>Bom (60–80%)</div>
               <div class='gauge-legend-item'><div class='gauge-dot' style='background:#4DBC44'></div>Meta (80–100%)</div>
             </div>
-            <div class='leitura-comercial' id='textoComercial'></div>
+
+            <!-- MÉTRICAS: o que devo fazer -->
+            <div style='margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0'>
+              <div class='result-title'>📊 O que fazer daqui para frente</div>
+              <div class='results-grid' style='margin-top:10px'>
+                <div class='metric metric-neutral'>
+                  <div class='label'>Captação líquida diária necessária</div>
+                  <div class='value' id='valorEsforco'>—</div>
+                  <div class='help'>Indicador principal do esforço comercial.</div>
+                </div>
+                <div class='metric metric-neutral'>
+                  <div class='label'>Dias úteis restantes</div>
+                  <div class='value' id='diasRestantesTopo'>—</div>
+                  <div class='help'>Base temporal para o esforço comercial.</div>
+                </div>
+                <div class='metric metric-neutral'>
+                  <div class='label'>Captação líquida total necessária</div>
+                  <div class='value' id='captacaoTotalTopo'>—</div>
+                  <div class='help'>Volume total a captar no período restante.</div>
+                </div>
+                <div class='metric metric-neutral'>
+                  <div class='label'>Saldo posição estimado em 31/12</div>
+                  <div class='value' id='saldoEstimadoTopo'>—</div>
+                  <div class='help'>Projeção da posição final implícita.</div>
+                </div>
+                <!-- 2.2.1: Cards "se não captar nada" -->
+                <div class='metric' style='border-color:#f5c6cb;background:#fff9f9'>
+                  <div class='label' style='color:#c0392b'>😴 Se não captar nada — Posição em 31/12</div>
+                  <div class='value' id='semCaptacaoPosicao' style='color:#c0392b'>—</div>
+                  <div class='help'>Posição final mantendo o saldo atual sem captação.</div>
+                </div>
+                <div class='metric' style='border-color:#f5c6cb;background:#fff9f9'>
+                  <div class='label' style='color:#c0392b'>😴 Se não captar nada — Saldo Médio em 31/12</div>
+                  <div class='value' id='semCaptacaoSaldoMedio' style='color:#c0392b'>—</div>
+                  <div class='help'>Saldo médio projetado sem nenhuma captação adicional.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LEITURA COMERCIAL -->
+            <div class='leitura-comercial' id='textoComercial' style='margin-top:16px'></div>
           </div>
         </div>
       </div>
@@ -1775,8 +1989,12 @@ table tbody tr:last-child td { border-bottom: none; }
             </tbody>
           </table>
         </div>
-        <div style='margin-top:16px;padding:12px;background:#f8f8f8;border-radius:8px;font-size:11px;color:#888;line-height:1.6;border:1px solid #eee'>
-          ⚠️ A rentabilidade divulgada não é líquida de impostos. Os investimentos em fundos não são garantidos pelo administrador, pelo gestor da carteira, ou por qualquer mecanismo de seguro ou pelo FGC. Este documento é meramente informativo.
+        <div style='margin-top:16px;padding:14px;background:#f8f8f8;border-radius:8px;font-size:11px;color:#888;line-height:1.9;border:1px solid #eee'>
+          • Os fundos de investimento geridos pelo Banco do Nordeste não cobram taxa de performance.<br>
+          • <strong>Rentabilidade passada não é garantia de rentabilidade futura.</strong><br>
+          • <strong>Fundos de investimento não contam com a cobertura do Fundo Garantidor de Créditos (FGC).</strong><br>
+          • A rentabilidade divulgada não é líquida de impostos.<br>
+          • Leia o formulário de informações complementares, a lâmina de informações essenciais e o regulamento antes de investir.
         </div>
       </div>
     </div>
@@ -1798,12 +2016,13 @@ table tbody tr:last-child td { border-bottom: none; }
             <thead>
               <tr style='background:var(--bnb-primary);color:#fff'>
                 <th style='padding:10px 12px;text-align:left;border-radius:8px 0 0 0;min-width:200px'>Fundo</th>
-                <th style='padding:10px 8px;text-align:center;min-width:110px'>Aplic. Mínima</th>
+                <th style='padding:10px 8px;text-align:center;min-width:110px'>Aplic. Inicial</th>
                 <th style='padding:10px 8px;text-align:center;min-width:110px'>Aplic. Adicional</th>
                 <th style='padding:10px 8px;text-align:center;min-width:110px'>Saldo Mínimo</th>
                 <th style='padding:10px 8px;text-align:center;min-width:120px'>Prazo Resgate</th>
-                <th style='padding:10px 8px;text-align:center;min-width:120px'>Classificação ANBIMA</th>
+                <th style='padding:10px 8px;text-align:center;min-width:120px'>Estratégia</th>
                 <th style='padding:10px 8px;text-align:center;min-width:100px'>Benchmark</th>
+                <th style='padding:10px 8px;text-align:center;min-width:80px'>Risco</th>
                 <th style='padding:10px 8px;text-align:center;border-radius:0 8px 0 0;min-width:160px'>Público-Alvo</th>
               </tr>
             </thead>
@@ -2069,6 +2288,11 @@ function limparSaldo() {
   ['meta','saldoMedio','saldoPosicao'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('diasDecorridos').value = '';
   document.getElementById('diasTotal').value = '252';
+  const dp = document.getElementById('dataPosicao'); if(dp) dp.value = '';
+  const dd = document.getElementById('diasDecorridosDisplay'); if(dd) dd.textContent = '—';
+  const dr = document.getElementById('diasRestantesDisplay'); if(dr) dr.textContent = '—';
+  const sc1 = document.getElementById('semCaptacaoPosicao'); if(sc1) sc1.textContent = '—';
+  const sc2 = document.getElementById('semCaptacaoSaldoMedio'); if(sc2) sc2.textContent = '—';
   document.getElementById('valorEsforco').textContent = '—';
   document.getElementById('diasRestantesTopo').textContent = '—';
   document.getElementById('captacaoTotalTopo').textContent = '—';
@@ -2119,28 +2343,33 @@ function calcularReceita() {
     btn.textContent = 'Simular Receita';
   }, 600);
 
-  const taxaAutomatico = 1.6875;
   const receitaSelecionado = calcular(taxaSelecionada, valorAplicado, diasUteis);
+  // Fundo Automático como referência (maior taxa CDI)
+  const fundoAuto = DADOS_RENT.find(f => f.nome.includes('AUTOMÁTICO')) || DADOS_RENT[0];
+  const taxaAutomatico = fundoAuto ? fundoAuto.taxa : 1.6875;
   const receitaAutomatico = calcular(taxaAutomatico, valorAplicado, diasUteis);
 
   document.getElementById('valorReceita').textContent = formatarMoeda(receitaSelecionado);
   document.getElementById('resultadoBoxReceita').style.display = 'block';
 
-  let labelsGrafico = [], dadosGrafico = [], coresGrafico = [];
-  if (nomeFundo === 'BNB Automático') {
+  const isAutomatico = nomeFundo.includes('AUTOMÁTICO');
+  if (isAutomatico) {
     document.getElementById('valorGapTopo').textContent = '—';
-    document.getElementById('textoGapTopo').textContent = 'A comparação aparece ao selecionar um fundo diferente do BNB Automático.';
-    labelsGrafico = ['BNB Automático'];
-    dadosGrafico = [receitaSelecionado];
-    coresGrafico = ['#A6193C'];
+    document.getElementById('textoGapTopo').textContent = 'Selecione outro fundo para comparar com o BNB Automático.';
   } else {
     const gap = receitaAutomatico - receitaSelecionado;
     document.getElementById('valorGapTopo').textContent = formatarMoeda(gap);
     document.getElementById('textoGapTopo').textContent = 'Atenção! Ao optar por este fundo, a agência deixa de arrecadar este valor em comparação ao BNB Automático.';
-    labelsGrafico = [nomeFundo, 'BNB Automático'];
-    dadosGrafico = [receitaSelecionado, receitaAutomatico];
-    coresGrafico = ['#F68B1F', '#A6193C'];
   }
+
+  // Gráfico com TODOS os fundos, ordenados por receita
+  const todosFundos = DADOS_RENT
+    .map(f => ({ nome: f.nome.replace('BNB ','').replace(' FIF',''), receita: calcular(f.taxa, valorAplicado, diasUteis), isSel: f.nome === nomeFundo }))
+    .sort((a,b) => b.receita - a.receita);
+
+  const labelsGrafico = todosFundos.map(f => f.nome);
+  const dadosGrafico  = todosFundos.map(f => f.receita);
+  const coresGrafico  = todosFundos.map(f => f.isSel ? '#A6193C' : f.nome.includes('AUTOMÁTICO') || f.nome.includes('Automático') ? '#F68B1F' : '#c5d0f5');
   renderizarGrafico(labelsGrafico, dadosGrafico, coresGrafico);
 }
 
@@ -2222,6 +2451,12 @@ function calcularEsforco() {
   document.getElementById('diasRestantesTopo').textContent = diasRestantes.toLocaleString('pt-BR');
   document.getElementById('captacaoTotalTopo').textContent = formatarMoeda(captacaoTotal);
   document.getElementById('saldoEstimadoTopo').textContent = formatarMoeda(saldoEstimadoFinal);
+
+  // Sem captação: mantém posição atual até 31/12
+  const semCaptPosicao = saldoPosicao;
+  const semCaptSaldoMedio = (saldoMedio * diasDecorridos + saldoPosicao * diasRestantes) / diasTotal;
+  document.getElementById('semCaptacaoPosicao').textContent    = formatarMoeda(semCaptPosicao);
+  document.getElementById('semCaptacaoSaldoMedio').textContent = formatarMoeda(semCaptSaldoMedio);
   document.getElementById('resultadoBoxSaldo').style.display = 'block';
 
   // Velocímetro: usa projeção correta
@@ -2261,4 +2496,21 @@ function renderizarVelocimetro(percentual) {
 
 
 </script>
+
+<!-- MODAL FUNDO OPERACIONAL -->
+<div id='modal-fundo' style='display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);animation:fadeIn .2s ease' onclick='fecharModalFundo(event)'>
+  <div style='position:absolute;right:0;top:0;bottom:0;width:420px;max-width:95vw;background:#fff;box-shadow:-8px 0 32px rgba(0,0,0,.2);overflow-y:auto;animation:slideIn .25s ease' onclick='event.stopPropagation()'>
+    <div style='background:var(--bnb-primary);padding:20px 24px;color:#fff;display:flex;align-items:center;justify-content:space-between'>
+      <div>
+        <div style='font-size:11px;opacity:.7;text-transform:uppercase;letter-spacing:.5px'>Informações Operacionais</div>
+        <div id='modal-fundo-nome' style='font-size:16px;font-weight:800;margin-top:2px'></div>
+      </div>
+      <button onclick='document.getElementById("modal-fundo").style.display="none"' style='background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer;font-weight:700;line-height:1'>×</button>
+    </div>
+    <div id='modal-fundo-body' style='padding:24px'></div>
+  </div>
+</div>
+<style>
+@keyframes slideIn { from { transform: translateX(40px); opacity:0; } to { transform: none; opacity:1; } }
+</style>
 </body></html>
