@@ -5,7 +5,11 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <title>Hub de Fundos | BNB Investimentos</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'>
+<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'></script>
+<script>
+const GS_ID = '10Ue3Ts2x7hG1bJUDYs_BCGnBJwOATUR6r1l6Vg6oKos';
+const GS_PUB_ID = '2PACX-1vSdeTPrsmpuxpBYwdEnC1VcQ4HAHLuBRLj5eloJm8Bs6CN10AKRulwpgDMfPNDIaac250hcqevGrvYG';
+
 // ============================================================
 // GOOGLE SHEETS — RENTABILIDADE E OPERACIONAL
 // ============================================================
@@ -211,40 +215,22 @@ async function carregarGoogleSheets() {
 
   document.getElementById('rent-status').textContent = '⏳ Buscando dados...';
 
-  // ── Estratégia A: gviz JSONP ──────────────────────────────────
   try {
-    const [dataR, dataO] = await Promise.all([
-      gvizQuery('Rentabilidade'),  // gid=0
-      gvizQuery('Operacional')     // gid=448547987
-    ]);
-    const rowsR = gvizToRows(dataR);
-    const rowsO = gvizToRows(dataO);
-    if (!rowsR.length) throw new Error('Sem dados');
-    aplicarDados(mapRent(rowsR), mapOp(rowsO), rowsR[0]?.[13]||'Atualizado', 'Google Sheets (gviz)');
-    return;
-  } catch(e1) {
-    console.warn('Estratégia gviz falhou:', e1.message);
-  }
-
-  // ── Estratégia B: CSV export direto ──────────────────────────
-  try {
-    // Descobre os GIDs das abas via pubhtml
     const pubBase = `https://docs.google.com/spreadsheets/d/e/${GS_PUB_ID}/pub`;
-    const [csvR, csvO] = await Promise.all([
-      fetch(pubBase + '?output=csv&gid=0').then(r => { if(!r.ok) throw new Error(r.status); return r.text(); }),
-      fetch(pubBase + '?output=csv&gid=448547987').then(r => { if(!r.ok) throw new Error(r.status); return r.text(); })
+    const [resR, resO] = await Promise.all([
+      fetch(pubBase + '?output=csv&gid=0'),
+      fetch(pubBase + '?output=csv&gid=448547987')
     ]);
+    if (!resR.ok || !resO.ok) throw new Error('HTTP ' + resR.status);
+    const [csvR, csvO] = await Promise.all([resR.text(), resO.text()]);
     const rowsR = parseCSV(csvR);
     const rowsO = parseCSV(csvO);
-    if (!rowsR.length) throw new Error('CSV vazio');
-    aplicarDados(mapRent(rowsR), mapOp(rowsO), rowsR[0]?.[13]||'Atualizado', 'Google Sheets (CSV)');
-    return;
-  } catch(e2) {
-    console.warn('Estratégia CSV falhou:', e2.message);
+    if (!rowsR.length) throw new Error('Planilha vazia');
+    aplicarDados(mapRent(rowsR), mapOp(rowsO), rowsR[0]?.[13] || 'Atualizado', 'Google Sheets');
+  } catch(e) {
+    console.warn('Google Sheets falhou:', e.message);
+    usarDadosLocais(e.message);
   }
-
-  // ── Fallback: dados locais ────────────────────────────────────
-  usarDadosLocais('todas as estratégias falharam');
 }
 
 // Inicializa ao carregar a página
@@ -770,6 +756,34 @@ popularSelectFundos = function() {
   popularSelectMega();
 };
 
+// ---- Diagnóstico de conexão Google Sheets ----
+async function diagnosticarGS() {
+  const log = [];
+  log.push('ID: ' + GS_ID);
+  log.push('Protocolo: ' + location.protocol);
+
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/e/${GS_PUB_ID}/pub?output=csv&gid=0`;
+    const res = await fetch(url);
+    const txt = await res.text();
+    const linhas = txt.trim().split('\n').length - 1;
+    log.push('✅ CSV OK — ' + linhas + ' linhas na aba Rentabilidade');
+  } catch(e) {
+    log.push('❌ CSV FALHOU: ' + e.message);
+  }
+
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/e/${GS_PUB_ID}/pub?output=csv&gid=448547987`;
+    const res = await fetch(url);
+    const txt = await res.text();
+    const linhas = txt.trim().split('\n').length - 1;
+    log.push('✅ CSV Operacional OK — ' + linhas + ' linhas');
+  } catch(e) {
+    log.push('❌ CSV Operacional FALHOU: ' + e.message);
+  }
+
+  alert('=== DIAGNÓSTICO HUB DE FUNDOS ===\n\n' + log.join('\n'));
+}
 </script>
 <script src='https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0'></script>
 <style>
@@ -1990,9 +2004,6 @@ table tbody tr:last-child td { border-bottom: none; }
 
 <script>
 // Google Sheets — Hub de Fundos BNB
-// Usando endpoint de publicação CSV (não requer autenticação)
-const GS_ID = '10Ue3Ts2x7hG1bJUDYs_BCGnBJwOATUR6r1l6Vg6oKos';
-const GS_PUB_ID = '2PACX-1vSdeTPrsmpuxpBYwdEnC1VcQ4HAHLuBRLj5eloJm8Bs6CN10AKRulwpgDMfPNDIaac250hcqevGrvYG';
 
 function exportarPDF() {
   // Imprime apenas a aba ativa
@@ -2248,37 +2259,6 @@ function renderizarVelocimetro(percentual) {
   });
 }
 
-// ---- Diagnóstico de conexão Google Sheets ----
-async function diagnosticarGS() {
-  const log = [];
-  log.push('ID: ' + GS_ID);
-  log.push('Protocolo: ' + location.protocol);
-
-  // Teste 1: gviz
-  try {
-    const data = await Promise.race([
-      gvizQuery('Rentabilidade'),
-      new Promise((_,r) => setTimeout(() => r(new Error('timeout 5s')), 5000))
-    ]);
-    const rows = gvizToRows(data);
-    log.push('✅ gviz OK — ' + rows.length + ' linhas na aba Rentabilidade');
-  } catch(e) {
-    log.push('❌ gviz FALHOU: ' + e.message);
-  }
-
-  // Teste 2: CSV fetch
-  try {
-    const url = `https://docs.google.com/spreadsheets/d/e/${GS_PUB_ID}/pub?output=csv&gid=0`;
-    const res = await fetch(url);
-    const txt = await res.text();
-    const linhas = txt.trim().split('\n').length - 1;
-    log.push('✅ CSV fetch OK — ' + linhas + ' linhas');
-  } catch(e) {
-    log.push('❌ CSV fetch FALHOU: ' + e.message);
-  }
-
-  alert('=== DIAGNÓSTICO HUB DE FUNDOS ===\n\n' + log.join('\n'));
-}
 
 </script>
 </body></html>
