@@ -5,7 +5,8 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
 <title>Hub de Fundos | BNB Investimentos</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'>
+<script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'></script>
+<script>
 // Mapeamento de risco por fundo
 const RISCO_MAP = {
   'BNB AUTOMÁTICO FIF':                  'Baixo',
@@ -163,8 +164,7 @@ function fecharModalFundo(e) {
 
 // ---- calcularEsforco — add semCaptacao cards ----
 
-</script>
-<script>
+
 const GS_ID = '10Ue3Ts2x7hG1bJUDYs_BCGnBJwOATUR6r1l6Vg6oKos';
 const GS_PUB_ID = '2PACX-1vSdeTPrsmpuxpBYwdEnC1VcQ4HAHLuBRLj5eloJm8Bs6CN10AKRulwpgDMfPNDIaac250hcqevGrvYG';
 
@@ -973,6 +973,296 @@ async function diagnosticarGS() {
 
   alert('=== DIAGNÓSTICO HUB DE FUNDOS ===\n\n' + log.join('\n'));
 }
+
+// Google Sheets — Hub de Fundos BNB
+
+function exportarPDF() {
+  // Imprime apenas a aba ativa
+  window.print();
+}
+
+Chart.register(ChartDataLabels);
+let meuGrafico = null;
+let meuVelocimetro = null;
+
+// TABS
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// NOTIFICAÇÕES INLINE (substitui alert)
+function showNotif(id, msg, tipo) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'notif ' + tipo;
+  setTimeout(() => { el.className = 'notif'; }, 5000);
+}
+
+// MÁSCARA MOEDA
+function mascaraMoeda(event) {
+  let valor = event.target.value.replace(/\D/g, '');
+  if (valor === '') { event.target.value = ''; return; }
+  valor = (parseInt(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  event.target.value = valor;
+}
+
+function converterParaNumero(valorFormatado) {
+  if (!valorFormatado) return 0;
+  let n = valorFormatado.replace(/[R$\s]/g, '').replace(/\./g, '').replace(',', '.');
+  const parsed = parseFloat(n);
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+function formatarMoeda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// LIMPAR CAMPOS
+function limparReceita() {
+  document.getElementById('valor').value = '';
+  document.getElementById('dias').value = '';
+  document.getElementById('valorReceita').textContent = '—';
+  document.getElementById('valorGapTopo').textContent = '—';
+  document.getElementById('textoGapTopo').textContent = 'A comparação aparece ao selecionar um fundo diferente do BNB Automático.';
+  document.getElementById('resultadoBoxReceita').style.display = 'none';
+  document.getElementById('notif-receita').className = 'notif';
+  ['err-valor','err-dias'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['valor','dias'].forEach(id => document.getElementById(id).classList.remove('field-error'));
+  if (meuGrafico) { meuGrafico.destroy(); meuGrafico = null; }
+}
+
+function limparSaldo() {
+  ['meta','saldoMedio','saldoPosicao'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('diasDecorridos').value = '';
+  document.getElementById('diasTotal').value = '252';
+  const dp = document.getElementById('dataPosicao'); if(dp) dp.value = '';
+  const dd = document.getElementById('diasDecorridosDisplay'); if(dd) dd.textContent = '—';
+  const dr = document.getElementById('diasRestantesDisplay'); if(dr) dr.textContent = '—';
+  const sc1 = document.getElementById('semCaptacaoPosicao'); if(sc1) sc1.textContent = '—';
+  const sc2 = document.getElementById('semCaptacaoSaldoMedio'); if(sc2) sc2.textContent = '—';
+  document.getElementById('valorEsforco').textContent = '—';
+  document.getElementById('diasRestantesTopo').textContent = '—';
+  document.getElementById('captacaoTotalTopo').textContent = '—';
+  document.getElementById('saldoEstimadoTopo').textContent = '—';
+  document.getElementById('resultadoBoxSaldo').style.display = 'none';
+  document.getElementById('notif-saldo').className = 'notif';
+  if (meuVelocimetro) { meuVelocimetro.destroy(); meuVelocimetro = null; }
+}
+
+// CÁLCULO RECEITA
+function calcular(taxaGlobal, valor, dias) {
+  const taxaAdminS3 = 0.0350;
+  const taxaLiquidaAnual = taxaGlobal - taxaAdminS3;
+  const taxaDiariaDecimal = (taxaLiquidaAnual / 100) / 252;
+  return valor * taxaDiariaDecimal * dias;
+}
+
+function calcularReceita() {
+  const btn = document.getElementById('btn-simular-receita');
+  const selectFundo = document.getElementById('fundo');
+  const taxaSelecionada = parseFloat(selectFundo.value);
+  const nomeFundo = selectFundo.options[selectFundo.selectedIndex].getAttribute('data-nome');
+  const valorAplicado = converterParaNumero(document.getElementById('valor').value);
+  const diasUteis = parseInt(document.getElementById('dias').value);
+
+  let hasError = false;
+  document.getElementById('err-valor').classList.remove('visible');
+  document.getElementById('err-dias').classList.remove('visible');
+  document.getElementById('valor').classList.remove('field-error');
+  document.getElementById('dias').classList.remove('field-error');
+
+  if (valorAplicado <= 0) {
+    document.getElementById('err-valor').classList.add('visible');
+    document.getElementById('valor').classList.add('field-error');
+    hasError = true;
+  }
+  if (isNaN(diasUteis) || diasUteis <= 0) {
+    document.getElementById('err-dias').classList.add('visible');
+    document.getElementById('dias').classList.add('field-error');
+    hasError = true;
+  }
+  if (hasError) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Calculando...';
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Simular Receita';
+  }, 600);
+
+  const receitaSelecionado = calcular(taxaSelecionada, valorAplicado, diasUteis);
+  // Fundo Automático como referência (maior taxa CDI)
+  const fundoAuto = DADOS_RENT.find(f => f.nome.includes('AUTOMÁTICO')) || DADOS_RENT[0];
+  const taxaAutomatico = fundoAuto ? fundoAuto.taxa : 1.6875;
+  const receitaAutomatico = calcular(taxaAutomatico, valorAplicado, diasUteis);
+
+  document.getElementById('valorReceita').textContent = formatarMoeda(receitaSelecionado);
+  document.getElementById('resultadoBoxReceita').style.display = 'block';
+
+  const isAutomatico = nomeFundo.includes('AUTOMÁTICO');
+  if (isAutomatico) {
+    document.getElementById('valorGapTopo').textContent = '—';
+    document.getElementById('textoGapTopo').textContent = 'Selecione outro fundo para comparar com o BNB Automático.';
+  } else {
+    const gap = receitaAutomatico - receitaSelecionado;
+    document.getElementById('valorGapTopo').textContent = formatarMoeda(gap);
+    document.getElementById('textoGapTopo').textContent = 'Atenção! Ao optar por este fundo, a agência deixa de arrecadar este valor em comparação ao BNB Automático.';
+  }
+
+  // Gráfico: fundo selecionado (vermelho) x BNB Automático (laranja)
+  let labelsGrafico, dadosGrafico, coresGrafico;
+  if (isAutomatico) {
+    labelsGrafico = ['BNB Automático'];
+    dadosGrafico  = [receitaSelecionado];
+    coresGrafico  = ['#A6193C'];
+  } else {
+    labelsGrafico = [nomeFundo.replace('BNB ','').replace(' FIF',''), 'BNB Automático'];
+    dadosGrafico  = [receitaSelecionado, receitaAutomatico];
+    coresGrafico  = ['#A6193C', '#F68B1F'];
+  }
+  renderizarGrafico(labelsGrafico, dadosGrafico, coresGrafico);
+}
+
+function renderizarGrafico(labels, dados, cores) {
+  const ctx = document.getElementById('graficoReceita').getContext('2d');
+  if (meuGrafico) meuGrafico.destroy();
+  meuGrafico = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{ label: 'Receita Projetada (R$)', data: dados, backgroundColor: cores, borderRadius: 6 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => formatarMoeda(ctx.raw) } },
+        datalabels: {
+          anchor: 'end', align: 'top',
+          formatter: v => formatarMoeda(v),
+          font: { weight: 'bold', size: 13 },
+          color: '#333'
+        }
+      },
+      scales: {
+        y: { beginAtZero: true, grace: '20%', ticks: { display: false }, grid: { display: false } },
+        x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 14, family: 'Sora' } } }
+      }
+    }
+  });
+}
+
+// CÁLCULO SALDO MÉDIO
+function calcularEsforco() {
+  const btn = document.getElementById('btn-calcular-saldo');
+  const meta         = converterParaNumero(document.getElementById('meta').value);
+  const saldoMedio   = converterParaNumero(document.getElementById('saldoMedio').value);
+  const saldoPosicao = converterParaNumero(document.getElementById('saldoPosicao').value);
+  const diasTotal    = parseInt(document.getElementById('diasTotal').value) || 252;
+
+  // Garante que diasDecorridos está calculado
+  const dataPos = document.getElementById('dataPosicao')?.value;
+  if (dataPos) calcularDiasAutomatico(); // força recalculo caso necessário
+
+  const diasDecorridosFinal = parseInt(document.getElementById('diasDecorridos').value) || 0;
+
+  // Validações com mensagens claras
+  if (meta <= 0) {
+    showNotif('notif-saldo', '⚠️ Informe a meta de saldo médio.', 'error'); return;
+  }
+  if (saldoPosicao <= 0) {
+    showNotif('notif-saldo', '⚠️ Informe o saldo posição atual.', 'error'); return;
+  }
+  if (diasDecorridosFinal <= 0) {
+    showNotif('notif-saldo', '⚠️ Selecione a data da posição para calcular os dias automaticamente.', 'error'); return;
+  }
+  const diasRestantes = diasTotal - diasDecorridosFinal;
+  if (diasRestantes <= 0) {
+    showNotif('notif-saldo', '⚠️ A data da posição já ultrapassou o fim do ano útil.', 'error'); return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Calculando...';
+  setTimeout(() => { btn.disabled = false; btn.textContent = 'Calcular Esforço Diário'; }, 600);
+
+  const calculo = (meta * diasTotal - saldoMedio * diasDecorridosFinal - diasRestantes * saldoPosicao) * 2 / (diasRestantes * (diasRestantes + 1));
+
+  const valorEsforcoEl = document.getElementById('valorEsforco');
+  const textoComercialEl = document.getElementById('textoComercial');
+  const urgenciaTextoEl = document.getElementById('urgenciaTexto');
+
+  urgenciaTextoEl.innerHTML = '⏳ Atenção: Faltam apenas <strong>' + diasRestantes + ' dias úteis</strong> para o fim do ano!';
+  // Exibe dias decorridos no display caso ainda não esteja preenchido
+  const ddDisplay = document.getElementById('diasDecorridosDisplay');
+  const drDisplay = document.getElementById('diasRestantesDisplay');
+  if (ddDisplay && ddDisplay.textContent === '—') ddDisplay.textContent = diasDecorridosFinal;
+  if (drDisplay && drDisplay.textContent === '—') drDisplay.textContent = diasRestantes;
+
+  if (calculo <= 0) {
+    valorEsforcoEl.textContent = '🎉 META BATIDA!';
+    valorEsforcoEl.style.color = '#1a7a3c';
+    textoComercialEl.innerHTML = '<strong>LEITURA:</strong><br>O seu saldo médio acumulado e a sua posição atual já garantem o cumprimento da meta para este ano. Excelente trabalho!';
+  } else {
+    valorEsforcoEl.textContent = formatarMoeda(calculo);
+    valorEsforcoEl.style.color = '#A6193C';
+    textoComercialEl.innerHTML = '<strong>LEITURA:</strong><br>Considerando que o saldo médio acumulado até o momento é de <strong>' + formatarMoeda(saldoMedio) + '</strong> e o saldo posição de <strong>' + formatarMoeda(saldoPosicao) + '</strong>, para você atingir a sua meta de saldo médio de <strong>' + formatarMoeda(meta) + '</strong> no ano, é necessária uma captação líquida diária de <strong>' + formatarMoeda(calculo) + '</strong> nos próximos ' + diasRestantes + ' dias úteis.';
+  }
+
+  // Métricas corretas
+  const captacaoTotal = calculo > 0 ? calculo * diasRestantes : 0;
+  const saldoEstimadoFinal = saldoPosicao + captacaoTotal;
+
+  document.getElementById('diasRestantesTopo').textContent = diasRestantes.toLocaleString('pt-BR');
+  document.getElementById('captacaoTotalTopo').textContent = formatarMoeda(captacaoTotal);
+  document.getElementById('saldoEstimadoTopo').textContent = formatarMoeda(saldoEstimadoFinal);
+
+  // Sem captação: mantém posição atual até 31/12
+  const semCaptPosicao = saldoPosicao;
+  const semCaptSaldoMedio = (saldoMedio * diasDecorridosFinal + saldoPosicao * diasRestantes) / diasTotal;
+  document.getElementById('semCaptacaoPosicao').textContent    = formatarMoeda(semCaptPosicao);
+  document.getElementById('semCaptacaoSaldoMedio').textContent = formatarMoeda(semCaptSaldoMedio);
+  document.getElementById('resultadoBoxSaldo').style.display = 'block';
+
+  // Velocímetro: usa projeção correta
+  const percentualProjetado = calculo <= 0 ? 100 : Math.min(100, Math.max(0, (saldoMedio / meta) * 100));
+  renderizarVelocimetro(percentualProjetado);
+}
+
+function renderizarVelocimetro(percentual) {
+  const ctx = document.getElementById('graficoVelocimetro').getContext('2d');
+  document.getElementById('percentualTexto').innerHTML = percentual.toFixed(1).replace('.', ',') + '%<span>da Meta Atingida</span>';
+
+  const espessuraPonteiro = 0.75;
+  let esq = percentual - (espessuraPonteiro / 2);
+  let dir = 100 - percentual - (espessuraPonteiro / 2);
+  if (esq < 0) { esq = 0; dir = 100 - espessuraPonteiro; }
+  if (dir < 0) { dir = 0; esq = 100 - espessuraPonteiro; }
+
+  if (meuVelocimetro) meuVelocimetro.destroy();
+  meuVelocimetro = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      datasets: [
+        { data: [20,20,20,20,20], backgroundColor: ['#A6193C','#e55a1b','#FF6B43','#EDE818','#4DBC44'], borderWidth: 2, borderColor: '#fff' },
+        { data: [esq, espessuraPonteiro, dir], backgroundColor: ['rgba(0,0,0,0)', '#1a1a2e', 'rgba(0,0,0,0)'], borderWidth: 0, weight: 1 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      circumference: 180,
+      rotation: 270,
+      cutout: '52%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
+    }
+  });
+}
 </script>
 <script src='https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0'></script>
 <style>
@@ -1712,7 +2002,7 @@ table tbody tr:last-child td { border-bottom: none; }
           </div>
           <div class='form-group'>
             <label for='dataPosicao'>Data da Posição: <span style='font-weight:400;color:#999;font-size:11px'>sistema calcula os dias automaticamente</span></label>
-            <input type='date' id='dataPosicao' oninput='calcularDiasAutomatico()'>
+            <input type='date' id='dataPosicao' onchange='calcularDiasAutomatico()'>
             <div style='margin-top:8px;display:flex;gap:10px'>
               <div style='flex:1;background:#f8f8f8;border:1px solid #eee;border-radius:8px;padding:8px 12px;font-size:12px'>
                 <div style='color:#aaa;font-weight:600'>Dias úteis decorridos</div>
@@ -2218,303 +2508,7 @@ table tbody tr:last-child td { border-bottom: none; }
   </div>
 </div>
 
-<script>
-// Google Sheets — Hub de Fundos BNB
 
-function exportarPDF() {
-  // Imprime apenas a aba ativa
-  window.print();
-}
-
-Chart.register(ChartDataLabels);
-let meuGrafico = null;
-let meuVelocimetro = null;
-
-// TABS
-document.querySelectorAll('.tab-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.tab).classList.add('active');
-  });
-});
-
-// NOTIFICAÇÕES INLINE (substitui alert)
-function showNotif(id, msg, tipo) {
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.className = 'notif ' + tipo;
-  setTimeout(() => { el.className = 'notif'; }, 5000);
-}
-
-// MÁSCARA MOEDA
-function mascaraMoeda(event) {
-  let valor = event.target.value.replace(/\D/g, '');
-  if (valor === '') { event.target.value = ''; return; }
-  valor = (parseInt(valor) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  event.target.value = valor;
-}
-
-function converterParaNumero(valorFormatado) {
-  if (!valorFormatado) return 0;
-  let n = valorFormatado.replace(/[R$\s]/g, '').replace(/\./g, '').replace(',', '.');
-  const parsed = parseFloat(n);
-  return isNaN(parsed) ? 0 : parsed;
-}
-
-function formatarMoeda(valor) {
-  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-
-// LIMPAR CAMPOS
-function limparReceita() {
-  document.getElementById('valor').value = '';
-  document.getElementById('dias').value = '';
-  document.getElementById('valorReceita').textContent = '—';
-  document.getElementById('valorGapTopo').textContent = '—';
-  document.getElementById('textoGapTopo').textContent = 'A comparação aparece ao selecionar um fundo diferente do BNB Automático.';
-  document.getElementById('resultadoBoxReceita').style.display = 'none';
-  document.getElementById('notif-receita').className = 'notif';
-  ['err-valor','err-dias'].forEach(id => document.getElementById(id).classList.remove('visible'));
-  ['valor','dias'].forEach(id => document.getElementById(id).classList.remove('field-error'));
-  if (meuGrafico) { meuGrafico.destroy(); meuGrafico = null; }
-}
-
-function limparSaldo() {
-  ['meta','saldoMedio','saldoPosicao'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('diasDecorridos').value = '';
-  document.getElementById('diasTotal').value = '252';
-  const dp = document.getElementById('dataPosicao'); if(dp) dp.value = '';
-  const dd = document.getElementById('diasDecorridosDisplay'); if(dd) dd.textContent = '—';
-  const dr = document.getElementById('diasRestantesDisplay'); if(dr) dr.textContent = '—';
-  const sc1 = document.getElementById('semCaptacaoPosicao'); if(sc1) sc1.textContent = '—';
-  const sc2 = document.getElementById('semCaptacaoSaldoMedio'); if(sc2) sc2.textContent = '—';
-  document.getElementById('valorEsforco').textContent = '—';
-  document.getElementById('diasRestantesTopo').textContent = '—';
-  document.getElementById('captacaoTotalTopo').textContent = '—';
-  document.getElementById('saldoEstimadoTopo').textContent = '—';
-  document.getElementById('resultadoBoxSaldo').style.display = 'none';
-  document.getElementById('notif-saldo').className = 'notif';
-  if (meuVelocimetro) { meuVelocimetro.destroy(); meuVelocimetro = null; }
-}
-
-// CÁLCULO RECEITA
-function calcular(taxaGlobal, valor, dias) {
-  const taxaAdminS3 = 0.0350;
-  const taxaLiquidaAnual = taxaGlobal - taxaAdminS3;
-  const taxaDiariaDecimal = (taxaLiquidaAnual / 100) / 252;
-  return valor * taxaDiariaDecimal * dias;
-}
-
-function calcularReceita() {
-  const btn = document.getElementById('btn-simular-receita');
-  const selectFundo = document.getElementById('fundo');
-  const taxaSelecionada = parseFloat(selectFundo.value);
-  const nomeFundo = selectFundo.options[selectFundo.selectedIndex].getAttribute('data-nome');
-  const valorAplicado = converterParaNumero(document.getElementById('valor').value);
-  const diasUteis = parseInt(document.getElementById('dias').value);
-
-  let hasError = false;
-  document.getElementById('err-valor').classList.remove('visible');
-  document.getElementById('err-dias').classList.remove('visible');
-  document.getElementById('valor').classList.remove('field-error');
-  document.getElementById('dias').classList.remove('field-error');
-
-  if (valorAplicado <= 0) {
-    document.getElementById('err-valor').classList.add('visible');
-    document.getElementById('valor').classList.add('field-error');
-    hasError = true;
-  }
-  if (isNaN(diasUteis) || diasUteis <= 0) {
-    document.getElementById('err-dias').classList.add('visible');
-    document.getElementById('dias').classList.add('field-error');
-    hasError = true;
-  }
-  if (hasError) return;
-
-  btn.disabled = true;
-  btn.textContent = 'Calculando...';
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.textContent = 'Simular Receita';
-  }, 600);
-
-  const receitaSelecionado = calcular(taxaSelecionada, valorAplicado, diasUteis);
-  // Fundo Automático como referência (maior taxa CDI)
-  const fundoAuto = DADOS_RENT.find(f => f.nome.includes('AUTOMÁTICO')) || DADOS_RENT[0];
-  const taxaAutomatico = fundoAuto ? fundoAuto.taxa : 1.6875;
-  const receitaAutomatico = calcular(taxaAutomatico, valorAplicado, diasUteis);
-
-  document.getElementById('valorReceita').textContent = formatarMoeda(receitaSelecionado);
-  document.getElementById('resultadoBoxReceita').style.display = 'block';
-
-  const isAutomatico = nomeFundo.includes('AUTOMÁTICO');
-  if (isAutomatico) {
-    document.getElementById('valorGapTopo').textContent = '—';
-    document.getElementById('textoGapTopo').textContent = 'Selecione outro fundo para comparar com o BNB Automático.';
-  } else {
-    const gap = receitaAutomatico - receitaSelecionado;
-    document.getElementById('valorGapTopo').textContent = formatarMoeda(gap);
-    document.getElementById('textoGapTopo').textContent = 'Atenção! Ao optar por este fundo, a agência deixa de arrecadar este valor em comparação ao BNB Automático.';
-  }
-
-  // Gráfico: fundo selecionado (vermelho) x BNB Automático (laranja)
-  let labelsGrafico, dadosGrafico, coresGrafico;
-  if (isAutomatico) {
-    labelsGrafico = ['BNB Automático'];
-    dadosGrafico  = [receitaSelecionado];
-    coresGrafico  = ['#A6193C'];
-  } else {
-    labelsGrafico = [nomeFundo.replace('BNB ','').replace(' FIF',''), 'BNB Automático'];
-    dadosGrafico  = [receitaSelecionado, receitaAutomatico];
-    coresGrafico  = ['#A6193C', '#F68B1F'];
-  }
-  renderizarGrafico(labelsGrafico, dadosGrafico, coresGrafico);
-}
-
-function renderizarGrafico(labels, dados, cores) {
-  const ctx = document.getElementById('graficoReceita').getContext('2d');
-  if (meuGrafico) meuGrafico.destroy();
-  meuGrafico = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{ label: 'Receita Projetada (R$)', data: dados, backgroundColor: cores, borderRadius: 6 }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: ctx => formatarMoeda(ctx.raw) } },
-        datalabels: {
-          anchor: 'end', align: 'top',
-          formatter: v => formatarMoeda(v),
-          font: { weight: 'bold', size: 13 },
-          color: '#333'
-        }
-      },
-      scales: {
-        y: { beginAtZero: true, grace: '20%', ticks: { display: false }, grid: { display: false } },
-        x: { grid: { display: false }, ticks: { font: { weight: 'bold', size: 14, family: 'Sora' } } }
-      }
-    }
-  });
-}
-
-// CÁLCULO SALDO MÉDIO
-function calcularEsforco() {
-  const btn = document.getElementById('btn-calcular-saldo');
-  const meta = converterParaNumero(document.getElementById('meta').value);
-  const saldoMedio = converterParaNumero(document.getElementById('saldoMedio').value);
-  const saldoPosicao = converterParaNumero(document.getElementById('saldoPosicao').value);
-  const diasTotal = parseInt(document.getElementById('diasTotal').value);
-  const diasDecorridos = parseInt(document.getElementById('diasDecorridos').value);
-
-  // Valida campos obrigatórios com mensagens específicas
-  if (meta <= 0) {
-    showNotif('notif-saldo', '⚠️ Informe a meta de saldo médio.', 'error'); return;
-  }
-  if (saldoPosicao <= 0) {
-    showNotif('notif-saldo', '⚠️ Informe o saldo posição atual.', 'error'); return;
-  }
-  // diasDecorridos vem do campo hidden preenchido pela data
-  const dataPos = document.getElementById('dataPosicao')?.value;
-  if (!dataPos && (isNaN(diasDecorridos) || diasDecorridos <= 0)) {
-    showNotif('notif-saldo', '⚠️ Selecione a data da posição para calcular os dias automaticamente.', 'error'); return;
-  }
-  // Re-lê diasDecorridos (pode ter sido preenchido manualmente ou via data)
-  const diasDecorridosFinal = isNaN(diasDecorridos) || diasDecorridos <= 0
-    ? parseInt(document.getElementById('diasDecorridos').value) || 0
-    : diasDecorridos;
-  if (diasDecorridosFinal <= 0) {
-    showNotif('notif-saldo', '⚠️ Selecione a data da posição.', 'error'); return;
-  }
-  const diasRestantes = diasTotal - diasDecorridosFinal;
-  if (diasRestantes <= 0) {
-    showNotif('notif-saldo', '⚠️ A data da posição já ultrapassou o fim do ano.', 'error'); return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Calculando...';
-  setTimeout(() => { btn.disabled = false; btn.textContent = 'Calcular Esforço Diário'; }, 600);
-
-  const calculo = (meta * diasTotal - saldoMedio * diasDecorridosFinal - diasRestantes * saldoPosicao) * 2 / (diasRestantes * (diasRestantes + 1));
-
-  const valorEsforcoEl = document.getElementById('valorEsforco');
-  const textoComercialEl = document.getElementById('textoComercial');
-  const urgenciaTextoEl = document.getElementById('urgenciaTexto');
-
-  urgenciaTextoEl.innerHTML = '⏳ Atenção: Faltam apenas <strong>' + diasRestantes + ' dias úteis</strong> para o fim do ano!';
-  // Exibe dias decorridos no display caso ainda não esteja preenchido
-  const ddDisplay = document.getElementById('diasDecorridosDisplay');
-  const drDisplay = document.getElementById('diasRestantesDisplay');
-  if (ddDisplay && ddDisplay.textContent === '—') ddDisplay.textContent = diasDecorridosFinal;
-  if (drDisplay && drDisplay.textContent === '—') drDisplay.textContent = diasRestantes;
-
-  if (calculo <= 0) {
-    valorEsforcoEl.textContent = '🎉 META BATIDA!';
-    valorEsforcoEl.style.color = '#1a7a3c';
-    textoComercialEl.innerHTML = '<strong>LEITURA:</strong><br>O seu saldo médio acumulado e a sua posição atual já garantem o cumprimento da meta para este ano. Excelente trabalho!';
-  } else {
-    valorEsforcoEl.textContent = formatarMoeda(calculo);
-    valorEsforcoEl.style.color = '#A6193C';
-    textoComercialEl.innerHTML = '<strong>LEITURA:</strong><br>Considerando que o saldo médio acumulado até o momento é de <strong>' + formatarMoeda(saldoMedio) + '</strong> e o saldo posição de <strong>' + formatarMoeda(saldoPosicao) + '</strong>, para você atingir a sua meta de saldo médio de <strong>' + formatarMoeda(meta) + '</strong> no ano, é necessária uma captação líquida diária de <strong>' + formatarMoeda(calculo) + '</strong> nos próximos ' + diasRestantes + ' dias úteis.';
-  }
-
-  // Métricas corretas
-  const captacaoTotal = calculo > 0 ? calculo * diasRestantes : 0;
-  const saldoEstimadoFinal = saldoPosicao + captacaoTotal;
-
-  document.getElementById('diasRestantesTopo').textContent = diasRestantes.toLocaleString('pt-BR');
-  document.getElementById('captacaoTotalTopo').textContent = formatarMoeda(captacaoTotal);
-  document.getElementById('saldoEstimadoTopo').textContent = formatarMoeda(saldoEstimadoFinal);
-
-  // Sem captação: mantém posição atual até 31/12
-  const semCaptPosicao = saldoPosicao;
-  const semCaptSaldoMedio = (saldoMedio * diasDecorridosFinal + saldoPosicao * diasRestantes) / diasTotal;
-  document.getElementById('semCaptacaoPosicao').textContent    = formatarMoeda(semCaptPosicao);
-  document.getElementById('semCaptacaoSaldoMedio').textContent = formatarMoeda(semCaptSaldoMedio);
-  document.getElementById('resultadoBoxSaldo').style.display = 'block';
-
-  // Velocímetro: usa projeção correta
-  const percentualProjetado = calculo <= 0 ? 100 : Math.min(100, Math.max(0, (saldoMedio / meta) * 100));
-  renderizarVelocimetro(percentualProjetado);
-}
-
-function renderizarVelocimetro(percentual) {
-  const ctx = document.getElementById('graficoVelocimetro').getContext('2d');
-  document.getElementById('percentualTexto').innerHTML = percentual.toFixed(1).replace('.', ',') + '%<span>da Meta Atingida</span>';
-
-  const espessuraPonteiro = 0.75;
-  let esq = percentual - (espessuraPonteiro / 2);
-  let dir = 100 - percentual - (espessuraPonteiro / 2);
-  if (esq < 0) { esq = 0; dir = 100 - espessuraPonteiro; }
-  if (dir < 0) { dir = 0; esq = 100 - espessuraPonteiro; }
-
-  if (meuVelocimetro) meuVelocimetro.destroy();
-  meuVelocimetro = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      datasets: [
-        { data: [20,20,20,20,20], backgroundColor: ['#A6193C','#e55a1b','#FF6B43','#EDE818','#4DBC44'], borderWidth: 2, borderColor: '#fff' },
-        { data: [esq, espessuraPonteiro, dir], backgroundColor: ['rgba(0,0,0,0)', '#1a1a2e', 'rgba(0,0,0,0)'], borderWidth: 0, weight: 1 }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      circumference: 180,
-      rotation: 270,
-      cutout: '52%',
-      plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { display: false } }
-    }
-  });
-}
-
-
-</script>
 
 <!-- MODAL FUNDO OPERACIONAL -->
 <div id='modal-fundo' style='display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);animation:fadeIn .2s ease' onclick='fecharModalFundo(event)'>
