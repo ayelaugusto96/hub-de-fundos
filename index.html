@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hub de Fundos | BNB Investimentos</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 :root {
@@ -57,8 +58,8 @@ input[type=date]{font-weight:600;font-size:14px}
 .btn-clr:hover{border-color:#aaa;color:#444;background:#f9f9f9}
 .btn-pdf{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;padding:11px 24px;border-radius:10px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;box-shadow:0 3px 12px rgba(166,25,60,.25);transition:background .2s}
 .btn-pdf:hover{background:#8a1432}
-.btn-prazo{background:#f0f4ff;color:#3b5bdb;border:1.5px solid #c5d0f5;border-radius:8px;padding:6px 12px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
-.btn-prazo:hover,.btn-prazo.on{background:#3b5bdb;color:#fff;border-color:#3b5bdb}
+.btn-prazo{background:#fff0f2;color:var(--red);border:1.5px solid #f5c0c8;border-radius:8px;padding:6px 12px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-prazo:hover,.btn-prazo.on{background:var(--red);color:#fff;border-color:var(--red)}
 /* NOTIF */
 .notif{display:none;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;border-left:4px solid;animation:fadeIn .2s ease}
 .notif.err{background:#fff5f5;color:#c0392b;border-color:#c0392b;display:block}
@@ -86,6 +87,10 @@ input[type=date]{font-weight:600;font-size:14px}
 /* DATE DISPLAY */
 .dbox{background:#f8f8f8;border:1px solid #eee;border-radius:8px;padding:8px 12px;font-size:12px;flex:1}
 .dbox .dlbl{color:#aaa;font-weight:600}.dbox .dval{font-size:18px;font-weight:800;color:#1a1a2e}
+/* SORTABLE HEADERS */
+thead th[onclick] { transition: background .15s; }
+thead th[onclick]:hover { background: rgba(255,255,255,.15) !important; }
+
 /* TABLES */
 table{border-collapse:collapse;width:100%}
 thead th{font-weight:700;padding:10px 8px}
@@ -110,8 +115,8 @@ tbody tr:last-child td{border-bottom:none}
 .cmp-trib{font-size:11px;color:#e07a10;font-weight:600;min-height:16px}
 .cmp-liq{font-size:22px;font-weight:800;color:var(--green);line-height:1.1}
 .cmp-ganho{font-size:12px;font-weight:700;margin-top:4px;min-height:18px}
-.cmp-mid{border-color:#dde}
-.cmp-parado{border-color:#f5e0e0;background:#fffafa}
+.cmp-mid{border-color:#f5e0e0;background:#fffafa}
+.cmp-parado{border-color:#dde}
 .cmp-card.winner{border-color:var(--green);background:linear-gradient(135deg,#f0fff4,#fff);box-shadow:0 4px 16px rgba(26,122,60,.15)}
 .win-badge{position:absolute;top:-10px;right:12px;background:var(--green);color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
 /* MEGA KPI */
@@ -157,6 +162,65 @@ tbody tr:last-child td{border-bottom:none}
   .ccontainer{height:220px!important}
   .footer{margin-top:6px!important;font-size:10px!important}
 }
+/* HOME */
+.home-mod-card:hover {
+  border-color: var(--red) !important;
+  box-shadow: 0 6px 20px rgba(166,25,60,.12);
+  transform: translateY(-2px);
+}
+
+/* FAQ ACORDEÃO */
+.faq-cat-title {
+  font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--red);margin:28px 0 12px;display:flex;align-items:center;gap:8px;
+}
+.faq-cat-title:first-child { margin-top:0; }
+.faq-item {
+  border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;
+  overflow:hidden;transition:border-color .2s,box-shadow .2s;background:#fff;
+}
+.faq-item:hover { border-color:#f5b8c4; box-shadow:0 2px 12px rgba(166,25,60,.06); }
+.faq-item.open { border-color:var(--red); box-shadow:0 4px 16px rgba(166,25,60,.1); }
+.faq-q {
+  width:100%;background:none;border:none;padding:16px 20px;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+  font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:#1a1a2e;
+  cursor:pointer;text-align:left;transition:background .15s;
+}
+.faq-q:hover { background:#fff8f8; }
+.faq-item.open .faq-q { background:#fff5f6;color:var(--red); }
+.faq-arrow {
+  font-size:12px;color:var(--muted);flex-shrink:0;
+  transition:transform .25s ease;display:inline-block;
+}
+.faq-item.open .faq-arrow { transform:rotate(180deg);color:var(--red); }
+.faq-a {
+  max-height:0;overflow:hidden;
+  transition:max-height .35s ease, padding .25s ease;
+  font-size:13px;color:#444;line-height:1.75;
+  padding:0 20px;border-top:0px solid transparent;
+}
+.faq-item.open .faq-a {
+  max-height:600px;padding:14px 20px 18px;
+  border-top:1px solid #fde8eb;
+}
+.faq-a strong { color:#1a1a2e; }
+.faq-a .tag {
+  display:inline-block;background:#f5f5f5;border-radius:6px;
+  padding:2px 8px;font-size:11px;font-weight:700;color:#555;margin:2px 3px 2px 0;
+}
+.faq-a .tag-red { background:#fff0f2;color:var(--red); }
+.faq-a .tag-green { background:#f0fff4;color:#1a7a3c; }
+.faq-busca-wrap {
+  position:relative;margin-bottom:20px;
+}
+.faq-busca-wrap input {
+  padding-left:40px;font-size:14px;
+}
+.faq-busca-icon {
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  font-size:16px;pointer-events:none;
+}
 /* RESPONSIVE */
 @media(max-width:900px){
   .mgrid{grid-template-columns:1fr}
@@ -190,16 +254,125 @@ tbody tr:last-child td{border-bottom:none}
 
 <div class="page">
   <div class="tabs">
-    <button class="tab on" data-tab="receitas">📊 Simulador de Receitas</button>
+    <button class="tab on" data-tab="home">🏠 Home</button>
+    <button class="tab" data-tab="receitas">📊 Simulador de Receitas</button>
     <button class="tab" data-tab="saldo">🎯 Simulador de Saldo Médio</button>
     <button class="tab" data-tab="comparativo">💰 Simulador de Rentabilidade</button>
     <button class="tab" data-tab="rentabilidade">📈 Rentabilidade</button>
-    <button class="tab" data-tab="operacional">🗂️ Informações Operacionais</button>
-    <button class="tab" data-tab="megasim">⚡ Mega Simulador</button>
+    <button class="tab" data-tab="faq">❓ FAQ</button>
+    <!-- <button class="tab" data-tab="operacional">🗂️ Informações Operacionais</button> -->
+    <!-- <button class="tab" data-tab="megasim">⚡ Mega Simulador</button> -->
   </div>
 
+  <!-- ===== HOME ===== -->
+  <section id="home" class="mod on">
+
+    <!-- HERO -->
+    <div style="background:linear-gradient(135deg,var(--red) 0%,#7a1232 100%);border-radius:var(--radius);padding:40px 48px;margin-bottom:24px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(166,25,60,.25)">
+      <div style="position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.05)"></div>
+      <div style="position:absolute;right:80px;bottom:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04)"></div>
+      <div style="position:relative;z-index:1">
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">BNB Investimentos · Ferramenta Gerencial</div>
+        <h1 style="font-size:32px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.2">Hub de Fundos</h1>
+        <p style="font-size:16px;color:rgba(255,255,255,.8);margin:0 0 28px;font-style:italic">A informação é o seu ativo mais valioso</p>
+        <!-- INDICADORES DO MÊS -->
+        <div id="home-indicadores" style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;min-width:100px">
+            <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.5px">CDI</div>
+            <div id="home-cdi" style="font-size:20px;font-weight:800;color:#fff;margin-top:2px">—</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5)">no mês</div>
+          </div>
+          <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;min-width:100px">
+            <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Poupança</div>
+            <div id="home-poup" style="font-size:20px;font-weight:800;color:#fff;margin-top:2px">—</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5)">no mês</div>
+          </div>
+          <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;min-width:100px">
+            <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.5px">SELIC</div>
+            <div id="home-selic" style="font-size:20px;font-weight:800;color:#fff;margin-top:2px">—</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5)">no mês</div>
+          </div>
+          <div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;min-width:100px">
+            <div style="font-size:10px;color:rgba(255,255,255,.6);font-weight:700;text-transform:uppercase;letter-spacing:.5px">IBOVESPA</div>
+            <div id="home-ibov" style="font-size:20px;font-weight:800;color:#fff;margin-top:2px">—</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.5)">no mês</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px">
+            <span id="home-status-icon" style="font-size:16px">⏳</span>
+            <div>
+              <div style="font-size:10px;color:rgba(255,255,255,.5)">Referência</div>
+              <div id="home-periodo" style="font-size:13px;font-weight:700;color:rgba(255,255,255,.8)">Carregando...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FUNDO EM DESTAQUE -->
+    <div id="home-destaque-wrap" style="margin-bottom:24px;display:none;animation:fadeIn .4s ease">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">🏆 Melhor rentabilidade em 12 meses</div>
+      <div class="card" style="border:2px solid var(--orange);background:linear-gradient(135deg,#fff,#fffbf5)">
+        <div class="cb" style="padding:20px 24px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+            <div>
+              <div id="home-dest-nome" style="font-size:18px;font-weight:800;color:#1a1a2e"></div>
+              <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap" id="home-dest-badges"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center">
+              <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">Mês</div><div id="home-dest-mes" style="font-size:18px;font-weight:800;color:var(--green)"></div></div>
+              <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">No Ano</div><div id="home-dest-ano" style="font-size:18px;font-weight:800;color:var(--green)"></div></div>
+              <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">12 Meses</div><div id="home-dest-m12" style="font-size:22px;font-weight:800;color:var(--red)"></div></div>
+              <div><div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase">24 Meses</div><div id="home-dest-m24" style="font-size:18px;font-weight:800;color:var(--green)"></div></div>
+            </div>
+            <button onclick="irParaSimulador('comparativo','mg-fundo',document.getElementById('home-dest-nome').textContent)" class="btn-act" style="width:auto;padding:12px 20px;margin:0;white-space:nowrap">
+              💰 Simular este fundo →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS DE ACESSO AOS MÓDULOS -->
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Ferramentas disponíveis</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px">
+      <div class="card home-mod-card" onclick="irParaAba('receitas')" style="cursor:pointer;transition:all .2s;border:2px solid transparent">
+        <div class="cb" style="padding:20px 22px">
+          <div style="font-size:28px;margin-bottom:10px">📊</div>
+          <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Simulador de Receitas</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5">Estime a receita gerada por fundo, valor e prazo. Compare com o BNB Automático.</div>
+          <div style="margin-top:14px;font-size:12px;font-weight:700;color:var(--red)">Acessar →</div>
+        </div>
+      </div>
+      <div class="card home-mod-card" onclick="irParaAba('saldo')" style="cursor:pointer;transition:all .2s;border:2px solid transparent">
+        <div class="cb" style="padding:20px 22px">
+          <div style="font-size:28px;margin-bottom:10px">🎯</div>
+          <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Simulador de Saldo Médio</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5">Calcule o esforço diário necessário para bater a meta anual de saldo médio.</div>
+          <div style="margin-top:14px;font-size:12px;font-weight:700;color:var(--red)">Acessar →</div>
+        </div>
+      </div>
+      <div class="card home-mod-card" onclick="irParaAba('comparativo')" style="cursor:pointer;transition:all .2s;border:2px solid transparent">
+        <div class="cb" style="padding:20px 22px">
+          <div style="font-size:28px;margin-bottom:10px">💰</div>
+          <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Simulador de Rentabilidade</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5">Compare fundo BNB × Poupança × Saldo Parado com IR e IOF calculados.</div>
+          <div style="margin-top:14px;font-size:12px;font-weight:700;color:var(--red)">Acessar →</div>
+        </div>
+      </div>
+      <div class="card home-mod-card" onclick="irParaAba('rentabilidade')" style="cursor:pointer;transition:all .2s;border:2px solid transparent">
+        <div class="cb" style="padding:20px 22px">
+          <div style="font-size:28px;margin-bottom:10px">📈</div>
+          <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:6px">Tabela de Rentabilidade</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.5">Consulte a rentabilidade completa de todos os fundos com filtros e ordenação.</div>
+          <div style="margin-top:14px;font-size:12px;font-weight:700;color:var(--red)">Acessar →</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
   <!-- ===== ABA 1: RECEITAS ===== -->
-  <section id="receitas" class="mod on">
+  <section id="receitas" class="mod">
     <div class="mgrid">
       <div class="card"><div class="cb">
         <h2 class="stitle">Simulador de Receitas</h2>
@@ -279,38 +452,46 @@ tbody tr:last-child td{border-bottom:none}
       </div></div>
 
       <div class="card"><div class="cb">
-        <div class="cbox on" id="saldo-cbox" style="margin-top:0;display:none">
-          <div class="ctitle">📍 Situação Atual da Meta</div>
-          <div class="urgbox" id="sm-urgencia"></div>
-          <div class="ccontainer" style="height:220px">
-            <canvas id="sm-velocimetro"></canvas>
-            <div class="clabel" id="sm-perc">0%<span>da Meta Atingida</span></div>
-          </div>
-          <div class="gleg">
-            <div class="gleg-item"><div class="gdot" style="background:#A6193C"></div>Crítico (0–20%)</div>
-            <div class="gleg-item"><div class="gdot" style="background:#e55a1b"></div>Baixo (20–40%)</div>
-            <div class="gleg-item"><div class="gdot" style="background:#FF6B43"></div>Regular (40–60%)</div>
-            <div class="gleg-item"><div class="gdot" style="background:#EDE818"></div>Bom (60–80%)</div>
-            <div class="gleg-item"><div class="gdot" style="background:#4DBC44"></div>Meta (80–100%)</div>
-          </div>
-          <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f0f0f0">
-            <div class="ctitle">📊 O que fazer daqui para frente</div>
-            <div class="rgrid" style="margin-top:10px">
-              <div class="metric m-n"><div class="lbl">Captação diária necessária</div><div class="val" id="sm-esforco">—</div></div>
-              <div class="metric m-n"><div class="lbl">Dias úteis restantes</div><div class="val" id="sm-rest">—</div></div>
-              <div class="metric m-n"><div class="lbl">Captação total necessária</div><div class="val" id="sm-total-cap">—</div></div>
-              <div class="metric m-n"><div class="lbl">Saldo estimado em 31/12</div><div class="val" id="sm-estimado">—</div></div>
-              <div class="metric" style="border-color:#f5c6cb;background:#fff9f9">
-                <div class="lbl" style="color:#c0392b">😴 Sem captação — Posição 31/12</div>
-                <div class="val" id="sm-sem-pos" style="color:#c0392b">—</div>
+        <div id="saldo-cbox" style="display:none;animation:fadeIn .3s ease">
+          <!-- CARD 1: Situação Atual da Meta -->
+          <div class="card" style="margin-bottom:16px">
+            <div class="cb">
+              <div class="ctitle">📍 Situação Atual da Meta</div>
+              <div class="urgbox" id="sm-urgencia"></div>
+              <div class="ccontainer" style="height:220px">
+                <canvas id="sm-velocimetro"></canvas>
+                <div class="clabel" id="sm-perc">0%<span>da Meta Atingida</span></div>
               </div>
-              <div class="metric" style="border-color:#f5c6cb;background:#fff9f9">
-                <div class="lbl" style="color:#c0392b">😴 Sem captação — Saldo Médio 31/12</div>
-                <div class="val" id="sm-sem-med" style="color:#c0392b">—</div>
+              <div class="gleg">
+                <div class="gleg-item"><div class="gdot" style="background:#A6193C"></div>Crítico (0–20%)</div>
+                <div class="gleg-item"><div class="gdot" style="background:#e55a1b"></div>Baixo (20–40%)</div>
+                <div class="gleg-item"><div class="gdot" style="background:#FF6B43"></div>Regular (40–60%)</div>
+                <div class="gleg-item"><div class="gdot" style="background:#EDE818"></div>Bom (60–80%)</div>
+                <div class="gleg-item"><div class="gdot" style="background:#4DBC44"></div>Meta (80–100%)</div>
               </div>
             </div>
           </div>
-          <div class="leitura" id="sm-leitura" style="margin-top:16px"></div>
+          <!-- CARD 2: O que fazer daqui para frente -->
+          <div class="card">
+            <div class="cb">
+              <div class="ctitle">📊 O que fazer daqui para frente</div>
+              <div class="rgrid" style="margin-top:14px">
+                <div class="metric m-n"><div class="lbl">Captação diária necessária</div><div class="val" id="sm-esforco">—</div></div>
+                <div class="metric m-n"><div class="lbl">Dias úteis restantes</div><div class="val" id="sm-rest">—</div></div>
+                <div class="metric m-n"><div class="lbl">Captação total necessária</div><div class="val" id="sm-total-cap">—</div></div>
+                <div class="metric m-n"><div class="lbl">Saldo estimado em 31/12</div><div class="val" id="sm-estimado">—</div></div>
+                <div class="metric" style="border-color:#f5c6cb;background:#fff9f9">
+                  <div class="lbl" style="color:#c0392b">😴 Sem captação — Posição 31/12</div>
+                  <div class="val" id="sm-sem-pos" style="color:#c0392b">—</div>
+                </div>
+                <div class="metric" style="border-color:#f5c6cb;background:#fff9f9">
+                  <div class="lbl" style="color:#c0392b">😴 Sem captação — Saldo Médio 31/12</div>
+                  <div class="val" id="sm-sem-med" style="color:#c0392b">—</div>
+                </div>
+              </div>
+              <div class="leitura" id="sm-leitura" style="margin-top:16px"></div>
+            </div>
+          </div>
         </div>
         <div id="saldo-vazio" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:#ccc">
           <div style="font-size:48px;margin-bottom:12px">🎯</div>
@@ -325,26 +506,27 @@ tbody tr:last-child td{border-bottom:none}
     <div class="mgrid">
       <div class="card"><div class="cb">
         <h2 class="stitle">Simulador de Rentabilidade</h2>
-        <p class="ssub">Fundo BNB × Poupança × Saldo Parado com IR e IOF calculados.</p>
+        <p class="ssub">Comparador de Rentabilidade Histórica</p>
         <div id="notif-cmp" class="notif"></div>
-        <div class="fg"><label>Selecione o Fundo BNB:</label><select id="cmp-fundo"></select></div>
+        <div class="fg"><label>Selecione o Fundo BNB:</label><select id="cmp-fundo" onchange="atualizarPeriodosCmp()"></select></div>
         <div class="fg">
           <label>Valor da Aplicação:</label>
           <input type="text" id="cmp-valor" placeholder="R$ 0,00" oninput="maskMoeda(this)">
           <div class="ferr" id="ferr-cmp-valor">Informe um valor válido.</div>
         </div>
         <div class="fg">
-          <label>Prazo (dias corridos):</label>
-          <input type="number" id="cmp-dias" placeholder="Ex: 365" min="1">
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
-            <button class="btn-prazo" onclick="setPrazo('cmp-dias',30,this)">1m</button>
-            <button class="btn-prazo" onclick="setPrazo('cmp-dias',90,this)">3m</button>
-            <button class="btn-prazo" onclick="setPrazo('cmp-dias',180,this)">6m</button>
-            <button class="btn-prazo" onclick="setPrazo('cmp-dias',365,this)">1 ano</button>
-            <button class="btn-prazo" onclick="setPrazo('cmp-dias',730,this)">2 anos</button>
+          <label>Período:</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn-prazo" id="cmp-p-mes" onclick="selecionarPeriodoCmp('mes',this)">Mês</button>
+            <button class="btn-prazo" id="cmp-p-ano" onclick="selecionarPeriodoCmp('ano',this)">No Ano</button>
+            <button class="btn-prazo" id="cmp-p-m12" onclick="selecionarPeriodoCmp('m12',this)">12 Meses</button>
+            <button class="btn-prazo" id="cmp-p-m24" onclick="selecionarPeriodoCmp('m24',this)">24 Meses</button>
           </div>
-          <div class="ferr" id="ferr-cmp-dias">Informe um prazo válido.</div>
+          <div id="cmp-periodo-info" style="margin-top:8px;font-size:12px;color:#888;min-height:18px"></div>
+          <input type="hidden" id="cmp-periodo-sel" value="">
+          <div class="ferr" id="ferr-cmp-dias">Selecione um período.</div>
         </div>
+        <!-- PARÂMETROS EDITÁVEIS — comentado temporariamente, preservado para uso futuro
         <div style="margin-top:16px;padding:14px;background:#f8f8f8;border-radius:10px;border:1px solid #eee">
           <div style="font-size:12px;font-weight:700;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">⚙️ Parâmetros editáveis</div>
           <div class="row">
@@ -352,13 +534,17 @@ tbody tr:last-child td{border-bottom:none}
             <div class="col fg" style="margin-bottom:0"><label style="font-size:12px">Poupança ao mês (%)</label><input type="number" id="cmp-poup" value="0.6170" step="0.0001" style="font-size:13px;padding:8px"></div>
           </div>
         </div>
+        -->
+        <!-- Campos hidden preservados para compatibilidade -->
+        <input type="hidden" id="cmp-cdi" value="14.65">
+        <input type="hidden" id="cmp-poup" value="0.6170">
+        <input type="hidden" id="cmp-dias" value="0">
         <button class="btn-act" style="margin-top:14px" onclick="calcCmp()">Simular Comparativo</button>
         <button class="btn-clr" onclick="limparCmp()">↺ Limpar campos</button>
         <div class="disc">
           ⚠️ Simulação gerencial. IR calculado pela tabela regressiva de renda fixa. IOF aplicado nos primeiros 29 dias corridos.<br><br>
-          • <strong>Rentabilidade passada não é garantia de rentabilidade futura.</strong><br>
-          • <strong>Fundos de investimento não contam com a cobertura do FGC.</strong><br>
-          • A rentabilidade divulgada não é líquida de impostos.<br>
+          • Rentabilidade passada não é garantia de rentabilidade futura.<br>
+          • Fundos de investimento não contam com a cobertura do FGC.<br>
           • Leia o formulário de informações complementares, a lâmina de informações essenciais e o regulamento antes de investir.<br>
           • Os fundos de investimento geridos pelo Banco do Nordeste não cobram taxa de performance.
         </div>
@@ -371,7 +557,7 @@ tbody tr:last-child td{border-bottom:none}
               <div class="cmp-lbl">🏦 Fundo BNB</div><div class="cmp-nome" id="cc-f-nome"></div>
               <div class="cmp-blbl">Rendimento bruto</div><div class="cmp-bruto" id="cc-f-bruto"></div>
               <div class="cmp-trib" id="cc-f-trib"></div>
-              <div class="cmp-llbl">Valor líquido</div><div class="cmp-liq" id="cc-f-liq"></div>
+              <div class="cmp-llbl">Valor líquido (após IR/IOF)</div><div class="cmp-liq" id="cc-f-liq"></div>
               <div class="cmp-ganho" id="cc-f-ganho"></div>
             </div>
             <div class="cmp-card cmp-mid" id="cc-poup">
@@ -393,6 +579,7 @@ tbody tr:last-child td{border-bottom:none}
             <div class="ctitle">Comparativo visual</div>
             <div style="height:240px"><canvas id="cmp-chart"></canvas></div>
           </div>
+          <div class="leitura" id="cmp-leitura" style="margin-top:16px"></div>
           <div style="margin-top:16px;background:#fafbfc;border:1px solid var(--border);border-radius:12px;padding:18px">
             <div class="ctitle">Detalhamento tributário</div>
             <table style="margin-top:10px">
@@ -408,7 +595,6 @@ tbody tr:last-child td{border-bottom:none}
               <tbody id="cmp-tbody"></tbody>
             </table>
           </div>
-          <div class="leitura" id="cmp-leitura" style="margin-top:16px"></div>
         </div>
         <div id="cmp-vazio" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:#ccc">
           <div style="font-size:48px;margin-bottom:12px">📊</div>
@@ -421,21 +607,27 @@ tbody tr:last-child td{border-bottom:none}
   <!-- ===== ABA 4: RENTABILIDADE ===== -->
   <section id="rentabilidade" class="mod">
     <div class="card"><div class="cb">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
-        <div>
-          <h2 class="stitle">Rentabilidade dos Fundos</h2>
-          <p style="font-size:13px;color:var(--muted)"><span id="rent-periodo" style="color:var(--orange);font-weight:700"></span> <span id="rent-status"></span></p>
+      <div style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+          <div>
+            <h2 class="stitle">Rentabilidade dos Fundos</h2>
+            <p style="font-size:13px;color:var(--muted)"><span id="rent-periodo" style="color:var(--orange);font-weight:700"></span> <span id="rent-status" style="font-size:15px;vertical-align:middle"></span></p>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button onclick="limparFiltrosRent()" style="font-size:12px;padding:7px 14px;border-radius:8px;border:1.5px solid #dde1e8;background:#f9f9f9;cursor:pointer;color:#666;font-family:'Sora',sans-serif;font-weight:600" onmouseover="this.style.borderColor='#A6193C';this.style.color='#A6193C'" onmouseout="this.style.borderColor='#dde1e8';this.style.color='#666'">✕ Limpar filtros</button>
+            <button onclick="diagGS()" style="font-size:11px;padding:7px 10px;border-radius:8px;border:1px solid #ddd;background:#f9f9f9;cursor:pointer;color:#888;font-family:'Sora',sans-serif" title="Diagnóstico de conexão">🔍</button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="text" id="rent-busca" placeholder="🔍 Buscar fundo..." oninput="filtrarRent()" style="width:160px;font-size:13px;padding:8px 12px;font-weight:600">
-          <select id="rent-classe" onchange="filtrarRent()" style="font-size:13px;padding:8px 10px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600">
-            <option value="">Todas as classes</option>
+        <div style="display:flex;gap:6px;align-items:center;overflow-x:auto;padding-bottom:2px">
+          <input type="text" id="rent-busca" placeholder="🔍 Buscar..." oninput="filtrarRent()" style="width:120px;flex-shrink:0;font-size:12px;padding:7px 10px;font-weight:600;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif">
+          <select id="rent-classe" onchange="filtrarRent()" style="font-size:12px;padding:7px 8px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;min-width:0">
+            <option value="">Classe</option>
             <option value="Renda Fixa">Renda Fixa</option>
             <option value="Multimercado">Multimercado</option>
             <option value="Ações">Ações</option>
           </select>
-          <select id="rent-bm" onchange="filtrarRent()" style="font-size:13px;padding:8px 10px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600">
-            <option value="">Todos os benchmarks</option>
+          <select id="rent-bm" onchange="filtrarRent()" style="font-size:12px;padding:7px 8px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;min-width:0">
+            <option value="">Benchmark</option>
             <option value="CDI">CDI</option>
             <option value="IMA-B">IMA-B</option>
             <option value="IMA-B 5">IMA-B 5</option>
@@ -443,53 +635,71 @@ tbody tr:last-child td{border-bottom:none}
             <option value="IBOVESPA B3">IBOVESPA B3</option>
             <option value="ISE-B3">ISE-B3</option>
           </select>
-          <select id="rent-risco" onchange="filtrarRent()" style="font-size:13px;padding:8px 10px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600">
-            <option value="">Todos os riscos</option>
+          <select id="rent-risco" onchange="filtrarRent()" style="font-size:12px;padding:7px 8px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;min-width:0">
+            <option value="">Risco</option>
             <option value="Baixo">Baixo</option>
             <option value="Médio">Médio</option>
             <option value="Alto">Alto</option>
           </select>
-          <button onclick="diagGS()" style="font-size:11px;padding:6px 10px;border-radius:6px;border:1px solid #ddd;background:#f9f9f9;cursor:pointer;color:#888;font-family:'Sora',sans-serif">🔍</button>
+          <select id="rent-aplic" onchange="filtrarRent()" style="font-size:12px;padding:7px 8px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;min-width:0">
+            <option value="">Aplic. mínima</option>
+            <option value="ate100">Até R$ 100</option>
+            <option value="ate1000">Até R$ 1.000</option>
+            <option value="ate10000">Até R$ 10.000</option>
+            <option value="acima10000">Acima R$ 10.000</option>
+          </select>
+          <select id="rent-liquidez" onchange="filtrarRent()" style="font-size:12px;padding:7px 8px;border:1.5px solid #dde1e8;border-radius:10px;font-family:'Sora',sans-serif;font-weight:600;min-width:0">
+            <option value="">Liquidez</option>
+            <option value="D+0">D+0</option>
+            <option value="D+1">D+1</option>
+            <option value="D+3">D+3 ou mais</option>
+          </select>
         </div>
       </div>
       <div style="overflow-x:auto">
         <table id="rent-table">
           <thead>
             <tr style="background:var(--red);color:#fff">
-              <th style="padding:10px 12px;text-align:left;border-radius:8px 0 0 0;min-width:200px">Fundo</th>
-              <th style="padding:10px 8px;text-align:center">Benchmark</th>
-              <th colspan="2" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2)">Mês</th>
-              <th colspan="2" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2)">No Ano</th>
-              <th colspan="2" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2)">12 Meses</th>
-              <th colspan="2" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2)">24 Meses</th>
-              <th style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2)">Taxa a.a.</th>
-              <th style="padding:10px 8px;text-align:center;border-radius:0 8px 0 0;border-left:1px solid rgba(255,255,255,.2)">PL Médio 12M</th>
+              <th onclick="ordenarRent('nome')" style="padding:10px 12px;text-align:left;border-radius:8px 0 0 0;min-width:200px;cursor:pointer;user-select:none">Fundo <span id="sort-nome" style="opacity:.6;font-size:10px"></span></th>
+              <th colspan="2" onclick="ordenarRent('mes')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none">Mês <span id="sort-mes" style="opacity:.6;font-size:10px"></span></th>
+              <th colspan="2" onclick="ordenarRent('ano')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none">No Ano <span id="sort-ano" style="opacity:.6;font-size:10px"></span></th>
+              <th colspan="2" onclick="ordenarRent('m12')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none">12 Meses <span id="sort-m12" style="opacity:.6;font-size:10px"></span></th>
+              <th colspan="2" onclick="ordenarRent('m24')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none">24 Meses <span id="sort-m24" style="opacity:.6;font-size:10px"></span></th>
+              <th onclick="ordenarRent('taxa')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none">Taxa Global <span id="sort-taxa" style="opacity:.6;font-size:10px"></span></th>
+              <th onclick="ordenarRent('pl')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);cursor:pointer;user-select:none">PL Médio 12M <span id="sort-pl" style="opacity:.6;font-size:10px"></span></th>
+              <th onclick="ordenarRent('aplic')" style="padding:10px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.2);min-width:90px;cursor:pointer;user-select:none">Aplic. Mínima <span id="sort-aplic" style="opacity:.6;font-size:10px"></span></th>
+              <th style="padding:10px 8px;text-align:center;border-radius:0 8px 0 0;border-left:1px solid rgba(255,255,255,.2);min-width:70px">Liquidez</th>
             </tr>
             <tr style="background:#8a1432;color:rgba(255,255,255,.85);font-size:11px">
-              <th></th><th></th>
-              <th style="padding:6px 8px;text-align:center">%</th><th style="padding:6px 8px;text-align:center">% BM</th>
-              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">%</th><th style="padding:6px 8px;text-align:center">% BM</th>
-              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">%</th><th style="padding:6px 8px;text-align:center">% BM</th>
-              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">%</th><th style="padding:6px 8px;text-align:center">% BM</th>
-              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)"></th>
+              <th></th>
+              <th style="padding:6px 8px;text-align:center">%</th>
+              <th style="padding:6px 8px;text-align:center">% BMK</th>
+              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">%</th>
+              <th style="padding:6px 8px;text-align:center">% BMK</th>
+              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">%</th>
+              <th style="padding:6px 8px;text-align:center">% BMK</th>
+              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">%</th>
+              <th style="padding:6px 8px;text-align:center">% BMK</th>
+              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">(%a.a.)</th>
+              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">R$ mil</th>
+              <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)">R$</th>
               <th style="padding:6px 8px;text-align:center;border-left:1px solid rgba(255,255,255,.15)"></th>
             </tr>
           </thead>
-          <tbody id="rent-tbody"><tr><td colspan="12" style="text-align:center;padding:40px;color:#aaa">Carregando dados...</td></tr></tbody>
+          <tbody id="rent-tbody"><tr><td colspan="13" style="text-align:center;padding:40px;color:#aaa">Carregando dados...</td></tr></tbody>
         </table>
       </div>
       <div class="disc" style="line-height:1.9">
-        • Os fundos de investimento geridos pelo Banco do Nordeste não cobram taxa de performance.<br>
-        • <strong>Rentabilidade passada não é garantia de rentabilidade futura.</strong><br>
-        • <strong>Fundos de investimento não contam com a cobertura do Fundo Garantidor de Créditos (FGC).</strong><br>
-        • A rentabilidade divulgada não é líquida de impostos.<br>
+        • <strong>Os fundos de investimento geridos pelo Banco do Nordeste não cobram taxa de performance.</strong><br>
+        • Rentabilidade passada não é garantia de rentabilidade futura.<br>
+        • Fundos de investimento não contam com a cobertura do Fundo Garantidor de Créditos (FGC).<br>
         • Leia o formulário de informações complementares, a lâmina de informações essenciais e o regulamento antes de investir.
       </div>
     </div></div>
   </section>
 
   <!-- ===== ABA 5: OPERACIONAL ===== -->
-  <section id="operacional" class="mod">
+  <section id="operacional" class="mod" style="display:none!important">
     <div class="card"><div class="cb">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
         <div><h2 class="stitle">Informações Operacionais</h2><p class="ssub" style="margin-bottom:0">Aplicações mínimas, prazos de resgate e perfil de cada fundo</p></div>
@@ -516,85 +726,299 @@ tbody tr:last-child td{border-bottom:none}
   </section>
 
   <!-- ===== ABA 6: MEGA SIMULADOR ===== -->
-  <section id="megasim" class="mod">
-    <div style="display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start">
+  <section id="megasim" class="mod" style="display:none!important">
+    <!-- MEGA SIMULADOR RECONSTRUÍDO -->
+    <div class="mgrid">
+
+      <!-- FORMULÁRIO COMPACTO -->
       <div class="card"><div class="cb">
         <h2 class="stitle">⚡ Mega Simulador</h2>
-        <p class="ssub">Visão 360°: rentabilidade do cliente, receita da agência e impacto na meta.</p>
+        <p class="ssub">Ganha × ganha: veja o retorno do cliente e o valor para a agência em tempo real.</p>
         <div id="notif-mega" class="notif"></div>
-        <div style="background:#f8f0ff;border-left:4px solid #6b3fa0;border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:12px;color:#6b3fa0;font-weight:600">👤 Dados do Cliente</div>
-        <div class="fg"><label>Nome do Cliente:</label><input type="text" id="mg-nome" placeholder="Ex: João da Silva"></div>
-        <div class="fg"><label>Fundo BNB:</label><select id="mg-fundo"></select></div>
+
+        <div class="fg">
+          <label>Nome do Cliente: <span style="font-weight:400;color:#aaa;font-size:11px">opcional</span></label>
+          <input type="text" id="mg-nome" placeholder="Ex: João da Silva" oninput="autoCalcMega()">
+        </div>
+        <div class="fg">
+          <label>Fundo BNB:</label>
+          <select id="mg-fundo" onchange="autoCalcMega()"></select>
+        </div>
         <div class="fg">
           <label>Valor da Aplicação:</label>
-          <input type="text" id="mg-valor" placeholder="R$ 0,00" oninput="maskMoeda(this)">
+          <input type="text" id="mg-valor" placeholder="R$ 0,00" oninput="maskMoeda(this);autoCalcMega()">
           <div class="ferr" id="ferr-mg-valor">Informe um valor válido.</div>
         </div>
         <div class="fg">
-          <label>Prazo da Aplicação (dias corridos):</label>
-          <input type="number" id="mg-prazo" placeholder="Ex: 365" min="1">
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
-            <button class="btn-prazo" onclick="setPrazo('mg-prazo',30,this)">1m</button>
-            <button class="btn-prazo" onclick="setPrazo('mg-prazo',90,this)">3m</button>
-            <button class="btn-prazo" onclick="setPrazo('mg-prazo',180,this)">6m</button>
-            <button class="btn-prazo" onclick="setPrazo('mg-prazo',365,this)">1 ano</button>
-            <button class="btn-prazo" onclick="setPrazo('mg-prazo',730,this)">2 anos</button>
+          <label>Prazo:</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+            <button class="btn-prazo" id="mg-p-mes" onclick="selecionarPrazoMega('mes',this)">Mês</button>
+            <button class="btn-prazo" id="mg-p-ano" onclick="selecionarPrazoMega('ano',this)">No Ano</button>
+            <button class="btn-prazo" id="mg-p-m12" onclick="selecionarPrazoMega('m12',this)">12 Meses</button>
+            <button class="btn-prazo" id="mg-p-m24" onclick="selecionarPrazoMega('m24',this)">24 Meses</button>
           </div>
-          <div class="ferr" id="ferr-mg-prazo">Informe um prazo válido.</div>
+          <input type="hidden" id="mg-periodo" value="">
+          <div class="ferr" id="ferr-mg-prazo">Selecione um período.</div>
         </div>
-        <div style="background:#fff5f0;border-left:4px solid var(--orange);border-radius:8px;padding:10px 14px;margin:18px 0 14px;font-size:12px;color:#e07a10;font-weight:600">🏦 Dados da Agência</div>
-        <div class="fg"><label>Meta de Saldo Médio no Ano:</label><input type="text" id="mg-meta" placeholder="R$ 0,00" oninput="maskMoeda(this)"></div>
-        <div class="row">
-          <div class="col fg"><label>Saldo Médio Realizado:</label><input type="text" id="mg-smedio" placeholder="R$ 0,00" oninput="maskMoeda(this)"></div>
-          <div class="col fg"><label>Saldo Posição Atual:</label><input type="text" id="mg-sposicao" placeholder="R$ 0,00" oninput="maskMoeda(this)"></div>
+
+        <!-- DADOS DA AGÊNCIA — expansível -->
+        <div style="margin-top:16px">
+          <button onclick="toggleAgencia()" id="btn-agencia" style="width:100%;background:#fff5f0;border:1.5px solid #fdd;border-radius:10px;padding:10px 14px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#e07a10;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center">
+            <span>🏦 Dados da Agência <span style="font-weight:400;font-size:11px;color:#aaa">(opcional — para calcular impacto na meta)</span></span>
+            <span id="agencia-arrow" style="font-size:12px">▼</span>
+          </button>
+          <div id="agencia-extra" style="display:none;padding:14px 0 0">
+            <div class="fg"><label>Meta de Saldo Médio no Ano:</label><input type="text" id="mg-meta" placeholder="R$ 0,00" oninput="maskMoeda(this);autoCalcMega()"></div>
+            <div class="row">
+              <div class="col fg"><label>Saldo Médio Realizado:</label><input type="text" id="mg-smedio" placeholder="R$ 0,00" oninput="maskMoeda(this);autoCalcMega()"></div>
+              <div class="col fg"><label>Saldo Posição Atual:</label><input type="text" id="mg-sposicao" placeholder="R$ 0,00" oninput="maskMoeda(this);autoCalcMega()"></div>
+            </div>
+            <div class="row">
+              <div class="col fg"><label>Total Dias Úteis:</label><input type="number" id="mg-dtotal" value="252" oninput="autoCalcMega()"></div>
+              <div class="col fg"><label>Dias Úteis Decorridos:</label><input type="number" id="mg-ddec" placeholder="Ex: 98" oninput="autoCalcMega()"></div>
+            </div>
+          </div>
         </div>
-        <div class="row">
-          <div class="col fg"><label>Total Dias Úteis:</label><input type="number" id="mg-dtotal" value="252"></div>
-          <div class="col fg"><label>Dias Úteis Decorridos:</label><input type="number" id="mg-ddec" placeholder="Ex: 98"></div>
-        </div>
-        <button class="btn-act" onclick="calcMega()">⚡ Gerar Análise Completa</button>
-        <button class="btn-clr" onclick="limparMega()">↺ Limpar</button>
+
+        <button class="btn-clr" onclick="limparMega()" style="margin-top:14px">↺ Limpar</button>
       </div></div>
 
+      <!-- DASHBOARD -->
       <div id="mg-dash" style="display:none;animation:fadeIn .35s ease">
-        <div class="card" style="margin-bottom:16px"><div class="cb" style="padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-          <div>
-            <div style="font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Análise gerada para</div>
-            <div id="mg-h-nome" style="font-size:22px;font-weight:800;color:#1a1a2e"></div>
-            <div id="mg-h-sub" style="font-size:13px;color:#888;margin-top:2px"></div>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap" id="mg-h-badges"></div>
-        </div></div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px">
-          <div class="mkpi mkpi-g"><div class="icon">💹</div><div class="klbl">Rentabilidade Líquida</div><div class="kval" id="mg-rentliq"></div><div class="ksub" id="mg-rentliq-sub"></div></div>
-          <div class="mkpi mkpi-o"><div class="icon">🏦</div><div class="klbl">Receita para a Agência</div><div class="kval" id="mg-receita"></div><div class="ksub" id="mg-receita-sub"></div></div>
-          <div class="mkpi mkpi-p"><div class="icon">🎯</div><div class="klbl">Contribuição Saldo Médio</div><div class="kval" id="mg-contrib"></div><div class="ksub" id="mg-contrib-sub"></div></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-          <div class="card"><div class="cb">
-            <div class="ctitle">📋 Detalhes da Aplicação</div>
-            <table style="margin-top:10px"><tbody id="mg-detalhe"></tbody></table>
-          </div></div>
-          <div class="card"><div class="cb" style="text-align:center">
-            <div class="ctitle">🎯 Progresso da Meta</div>
-            <div style="position:relative;height:180px">
-              <canvas id="mg-veloc"></canvas>
-              <div class="clabel" id="mg-perc" style="top:62%">0%<span>da Meta Atingida</span></div>
+
+        <!-- HEADER CLIENTE -->
+        <div class="card" style="margin-bottom:14px"><div class="cb" style="padding:16px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+            <div>
+              <div style="font-size:11px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.5px">Análise</div>
+              <div id="mg-h-nome" style="font-size:20px;font-weight:800;color:#1a1a2e"></div>
             </div>
-            <div id="mg-meta-status" style="font-size:13px;font-weight:700;margin-top:4px"></div>
-          </div></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-          <div class="card"><div class="cb"><div class="ctitle">📊 Comparativo com outros fundos</div><div style="height:220px"><canvas id="mg-chart-f"></canvas></div></div></div>
-          <div class="card"><div class="cb"><div class="ctitle">📈 Evolução Patrimonial</div><div style="height:220px"><canvas id="mg-chart-e"></canvas></div></div></div>
-        </div>
-        <div class="card"><div class="cb"><div class="ctitle">💬 Leitura Comercial Completa</div><div id="mg-leitura" style="margin-top:10px;font-size:14px;line-height:1.8;color:#333"></div></div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="mg-h-badges"></div>
+          </div>
+        </div></div>
+
+        <!-- BLOCO CLIENTE -->
+        <div class="card" style="margin-bottom:14px"><div class="cb">
+          <div style="font-size:12px;font-weight:700;color:#1a7a3c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:6px">
+            <span style="background:#1a7a3c;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px">👤</span>
+            Para o Cliente
+          </div>
+          <div class="rgrid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="metric" style="border-color:#c8e6c9;background:#f0fff4">
+              <div class="lbl">Valor Final</div>
+              <div class="val" id="mg-vfinal" style="color:#1a7a3c">—</div>
+              <div class="hlp" id="mg-vfinal-sub"></div>
+            </div>
+            <div class="metric" style="border-color:#c8e6c9;background:#f0fff4">
+              <div class="lbl">Rendimento Líquido</div>
+              <div class="val" id="mg-rentliq" style="color:#1a7a3c">—</div>
+              <div class="hlp" id="mg-rentliq-sub"></div>
+            </div>
+            <div class="metric" style="border-color:#c8e6c9;background:#f0fff4">
+              <div class="lbl">vs Poupança</div>
+              <div class="val" id="mg-vspoup" style="color:#1a7a3c">—</div>
+              <div class="hlp" id="mg-vspoup-sub"></div>
+            </div>
+          </div>
+          <!-- Gráfico evolução patrimonial -->
+          <div style="margin-top:16px;height:200px"><canvas id="mg-chart-e"></canvas></div>
+        </div></div>
+
+        <!-- BLOCO AGÊNCIA -->
+        <div class="card" style="margin-bottom:14px"><div class="cb">
+          <div style="font-size:12px;font-weight:700;color:#e07a10;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:6px">
+            <span style="background:var(--orange);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px">🏦</span>
+            Para a Agência
+          </div>
+          <div class="rgrid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="metric" style="border-color:#fdd;background:#fff8f0">
+              <div class="lbl">Receita Gerada</div>
+              <div class="val" id="mg-receita" style="color:#e07a10">—</div>
+              <div class="hlp" id="mg-receita-sub"></div>
+            </div>
+            <div class="metric" id="mg-card-contrib" style="border-color:#fdd;background:#fff8f0">
+              <div class="lbl">Impacto no Saldo Médio</div>
+              <div class="val" id="mg-contrib" style="color:#e07a10">—</div>
+              <div class="hlp" id="mg-contrib-sub">Preencha os dados da agência</div>
+            </div>
+            <div class="metric" id="mg-card-esforco" style="border-color:#fdd;background:#fff8f0">
+              <div class="lbl">Redução do Esforço Diário</div>
+              <div class="val" id="mg-esforco-red" style="color:#e07a10">—</div>
+              <div class="hlp" id="mg-esforco-sub">Preencha os dados da agência</div>
+            </div>
+          </div>
+          <!-- Velocímetro de meta (só aparece se meta preenchida) -->
+          <div id="mg-veloc-wrap" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center">
+              <div>
+                <div class="ctitle" style="margin-bottom:8px">🎯 Progresso da Meta</div>
+                <div style="position:relative;height:160px">
+                  <canvas id="mg-veloc"></canvas>
+                  <div class="clabel" id="mg-perc" style="top:62%">0%<span>da Meta</span></div>
+                </div>
+                <div id="mg-meta-status" style="font-size:13px;font-weight:700;text-align:center;margin-top:4px"></div>
+              </div>
+              <!-- Gráfico comparativo de receita entre fundos -->
+              <div>
+                <div class="ctitle" style="margin-bottom:8px">📊 Receita por Fundo</div>
+                <div style="height:180px"><canvas id="mg-chart-f"></canvas></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+
+        <!-- LEITURA COMERCIAL -->
+        <div class="card"><div class="cb">
+          <div class="ctitle">💬 Argumento Comercial</div>
+          <div id="mg-leitura" style="margin-top:10px;font-size:14px;line-height:1.8;color:#333"></div>
+        </div></div>
+
       </div>
-      <div id="mg-vazio" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:400px;color:#ccc;background:#fff;border-radius:var(--radius);border:1px solid var(--border)">
-        <div style="font-size:56px;margin-bottom:14px">⚡</div>
-        <div style="font-size:15px;font-weight:700;color:#bbb">Preencha os dados e gere a análise completa</div>
+
+      <!-- ESTADO VAZIO -->
+      <div id="mg-vazio" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:360px;color:#ccc;background:#fff;border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:52px;margin-bottom:14px">⚡</div>
+        <div style="font-size:15px;font-weight:700;color:#bbb">Selecione fundo, valor e período</div>
+        <div style="font-size:12px;color:#ccc;margin-top:6px">O resultado aparece automaticamente</div>
       </div>
     </div>
+  </section>
+
+
+  <!-- ===== FAQ ===== -->
+  <section id="faq" class="mod">
+    <div class="card"><div class="cb">
+
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:24px">
+        <div>
+          <h2 class="stitle">Perguntas Frequentes</h2>
+          <p class="ssub" style="margin-bottom:0">Conceitos e informações sobre Fundos de Investimento.</p>
+        </div>
+        <div class="faq-busca-wrap" style="width:280px">
+          <span class="faq-busca-icon">🔍</span>
+          <input type="text" id="faq-busca" placeholder="Buscar pergunta..." oninput="filtrarFaq()" style="width:100%">
+        </div>
+      </div>
+
+      <div id="faq-lista">
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que são Fundos de Investimento? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            Os Fundos de Investimento são uma forma simples e acessível de investir em diversos tipos de ativos, como ações, debêntures, títulos públicos e investimentos internacionais. São divididos em <strong>cotas</strong> — cada cotista possui um número de cotas proporcional ao valor investido.<br><br>
+            Os cotistas são os donos do fundo, mas uma equipe de profissionais (gestor, administrador e custodiante) trabalha para aplicar os recursos da melhor forma, dentro da política definida no regulamento do fundo.
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">Quais são os custos dos Fundos de Investimento? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            <strong>Taxa de Administração:</strong> percentual sobre o patrimônio líquido do fundo, cobrado anualmente dos cotistas. Cobre os serviços do gestor, administrador e demais instituições envolvidas. Varia de produto para produto.<br><br>
+            <strong>Taxa de Performance:</strong> cobrada apenas quando prevista no regulamento e somente se a rentabilidade do fundo superar o benchmark (indicador de referência). Tem o objetivo de alinhar os incentivos entre gestor e cotista.<br><br>
+            <strong>Os fundos BNB não cobram taxa de performance.</strong>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">Como funciona o Imposto de Renda nos Fundos? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            A tributação varia conforme o tipo de fundo e o prazo de permanência:<br><br>
+            <strong>Fundos de Ações:</strong><br>
+            <span class="tag">Qualquer prazo</span> 15% de IR<br><br>
+            <strong>Fundos de Curto Prazo</strong> (carteira com prazo médio ≤ 365 dias):<br>
+            <span class="tag">Até 180 dias</span> 22,5% · <span class="tag">Acima de 180 dias</span> 20%<br><br>
+            <strong>Fundos de Longo Prazo</strong> (carteira com prazo médio ≥ 365 dias):<br>
+            <span class="tag">Até 180 dias</span> 22,5% · <span class="tag">181 a 360 dias</span> 20% · <span class="tag">361 a 720 dias</span> 17,5% · <span class="tag tag-green">Acima de 720 dias</span> 15%<br><br>
+            O IR incide sobre o rendimento bruto no momento do resgate, após o desconto do IOF quando aplicável.
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que é o Come-Cotas? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            O <strong>come-cotas</strong> é a antecipação do Imposto de Renda que ocorre automaticamente no último dia útil de <strong>maio e novembro</strong> em fundos de renda fixa e multimercado.<br><br>
+            A alíquota usada é a <strong>menor de cada tipo</strong>: 20% para fundos de curto prazo e 15% para fundos de longo prazo. O desconto é feito em <strong>quantidade de cotas</strong> — o sistema calcula quantas cotas equivalem ao valor do IR devido e as deduz da posição do cotista.<br><br>
+            No resgate, se a alíquota final devida for maior (ex: resgate com 90 dias → 22,5%), a diferença é cobrada. Se já foi antecipado mais do que o devido, o excesso fica retido até o resgate.<br><br>
+            <strong>Fundos de ações não têm come-cotas.</strong>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que é o IOF e quando incide? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            O <strong>Imposto sobre Operações Financeiras (IOF)</strong> incide sobre o rendimento em resgates realizados em até <strong>29 dias corridos</strong> após a aplicação. A alíquota é regressiva, variando de <strong>96% a 0%</strong> sobre o rendimento bruto.<br><br>
+            A partir do 30º dia, a alíquota é zero — ou seja, o cliente não paga IOF. Por isso, resgates antecipados têm tributação significativamente maior.<br><br>
+            O IOF aplica-se a fundos com tributação de curto e longo prazo. <strong>Não há IOF em fundos de ações.</strong>
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que é o benchmark de um fundo? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            O <strong>benchmark</strong> é o indicador de referência usado para avaliar o desempenho do fundo. Indica qual é o objetivo de rentabilidade que o gestor busca superar.<br><br>
+            <span class="tag tag-green">CDI / SELIC</span> Fundos de renda fixa conservadores<br>
+            <span class="tag" style="background:#fef9e7;color:#b7950b">IRF-M 1</span> Fundos indexados a títulos prefixados curtos<br>
+            <span class="tag" style="background:#fff3e0;color:#e65100">IMA-B / IMA-B 5</span> Fundos indexados à inflação (IPCA)<br>
+            <span class="tag" style="background:#fdecea;color:#a6193c">IBOVESPA / ISE</span> Fundos de ações<br><br>
+            O <strong>% do Benchmark (% BMK)</strong> indica quanto o fundo rendeu em relação ao seu indicador. Acima de 100% significa que o fundo superou o benchmark no período.
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que é o prazo de resgate D+0, D+1, D+3? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            Indica em quantos <strong>dias úteis</strong> o cliente recebe o dinheiro após solicitar o resgate:<br><br>
+            <span class="tag tag-green">D+0</span> Crédito no mesmo dia — liquidez imediata<br>
+            <span class="tag" style="background:#fffbea;color:#b7791f">D+1</span> Crédito no próximo dia útil<br>
+            <span class="tag" style="background:#fff3eb;color:#c05621">D+3</span> Crédito em 3 dias úteis<br><br>
+            Fundos com maior liquidez (D+0) costumam ter rentabilidade menor. Fundos D+3 ou mais podem oferecer retornos superiores por assumirem maior risco de liquidez.
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">Por que comparar com a Poupança? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            A Poupança é a <strong>aplicação de referência popular</strong> no Brasil — isenta de IR e IOF, acessível e conhecida por todos. Por isso, é o principal argumento de comparação com os fundos BNB.<br><br>
+            <strong>Regra atual da Poupança</strong> (com Selic acima de 8,5% a.a.): rende <strong>0,5% ao mês + TR</strong> (TR ≈ 0 na prática). Com a Selic a 14,75% a.a., a maioria dos fundos BNB supera a poupança com folga, mesmo após o desconto de IR.
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que é Saldo Médio e por que é importante para a agência? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            O <strong>saldo médio</strong> é a média diária do saldo em carteira ao longo do ano. É um dos principais indicadores de desempenho das agências, pois a receita de administração é calculada sobre o saldo médio — não sobre o saldo pontual do dia.<br><br>
+            <strong>Exemplo:</strong> um cliente que aplica R$ 100.000 em janeiro e resgata em junho contribui menos para o saldo médio do que um que mantém R$ 50.000 o ano todo.<br><br>
+            Por isso, <strong>fidelização e permanência</strong> na carteira são tão importantes quanto a captação.
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">Os fundos BNB têm cobertura do FGC? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            <strong>Não.</strong> Fundos de investimento não contam com a cobertura do Fundo Garantidor de Créditos (FGC). Diferente de uma poupança ou CDB, o patrimônio do fundo é separado do patrimônio do banco.<br><br>
+            Em caso de insolvência do gestor ou administrador, os cotistas têm preferência sobre os ativos da carteira. A proteção vem pela <strong>regulamentação da CVM</strong>, pela segregação patrimonial e pela solidez do gestor (S3) e administrador (BNB).
+          </div>
+        </div>
+
+        <div class="faq-item" data-cat="fundos">
+          <button class="faq-q" onclick="toggleFaq(this)">O que é o PL Médio 12M? <span class="faq-arrow">▼</span></button>
+          <div class="faq-a">
+            O <strong>Patrimônio Líquido Médio dos últimos 12 meses</strong> indica o tamanho médio do fundo no período. É importante porque:<br><br>
+            • Fundos maiores tendem a ter <strong>maior liquidez</strong> e custos operacionais diluídos<br>
+            • PL crescente indica <strong>captação líquida positiva</strong> — mais cotistas confiando no fundo<br>
+            • PL muito pequeno pode sinalizar <strong>risco de encerramento</strong> do fundo<br><br>
+            Na tabela de rentabilidade, o valor aparece em <strong>R$ mil</strong>.
+          </div>
+        </div>
+
+      </div><!-- /faq-lista -->
+
+      <div id="faq-vazio" style="display:none;text-align:center;padding:40px;color:#ccc">
+        <div style="font-size:36px;margin-bottom:10px">🔍</div>
+        <div style="font-weight:700">Nenhuma pergunta encontrada</div>
+      </div>
+
+    </div></div>
   </section>
 
   <div class="footer">
@@ -648,52 +1072,57 @@ const DADOS_RENT = [
 ];
 
 const DADOS_OP = [
-  {nome:'BNB AUTOMÁTICO FIF',min:'R$ 1,00',adic:'R$ 1,00',saldo:'R$ 1,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB SETOR PÚBLICO FIF',min:'R$ 10,00',adic:'R$ 10,00',saldo:'R$ 10,00',prazo:'D+0',class:'CDI Pós Soberano',bm:'CDI',publico:'Setor Público (Gov. Federal, Estados, Municípios, Autarquias)'},
-  {nome:'BNB CLÁSSICO FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB CONTA RESERVA FIF',min:'R$ 10,00',adic:'R$ 10,00',saldo:'R$ 10,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB ESPECIAL FIF',min:'R$ 10.000,00',adic:'R$ 250,00',saldo:'R$ 2.500,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB ESSENCIAL FIF',min:'R$ 1.000,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB FUNCIONÁRIO FIF',min:'R$ 100,00',adic:'R$ 10,00',saldo:'R$ 1,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Funcionários, bolsistas, aposentados e diretores do BNB; pensionistas CAPEF'},
-  {nome:'BNB SOBERANO FIF',min:'R$ 500.000,00',adic:'R$ 500,00',saldo:'R$ 5.000,00',prazo:'D+0',class:'CDI Pós Soberano',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB INSTITUCIONAL FIF',min:'R$ 50.000,00',adic:'R$ 500,00',saldo:'R$ 5.000,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB MÁXIMO FIF',min:'R$ 2.500,00',adic:'R$ 125,00',saldo:'R$ 500,00',prazo:'D+1 du',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB PLUS FIF',min:'R$ 25.000,00',adic:'R$ 500,00',saldo:'R$ 2.500,00',prazo:'D+1 du',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB IMA-B FIF',min:'R$ 75.000,00',adic:'R$ 500,00',saldo:'R$ 5.000,00',prazo:'D+1 du',class:'Inflação',bm:'IMA-B',publico:'Investidores em geral'},
-  {nome:'BNB IPCA FIF',min:'R$ 500,00',adic:'R$ 100,00',saldo:'R$ 250,00',prazo:'D+1 du',class:'Inflação',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB MULTIMERCADO FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+3 du',class:'Multimercados Dinâmico',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB SELEÇÃO AÇÕES FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+3 du',class:'Ações Ativo',bm:'Ibovespa',publico:'Investidores em geral'},
-  {nome:'BNB IRF-M 1 TÍTULOS PÚBLICOS FIF',min:'R$ 100.000,00',adic:'R$ 500,00',saldo:'R$ 10.000,00',prazo:'D+1 du',class:'Índice Pré',bm:'IRF-M 1',publico:'Investidores em geral'},
-  {nome:'BNB FÁCIL FIF',min:'R$ 1,00',adic:'R$ 1,00',saldo:'R$ 1,00',prazo:'D+0',class:'Renda Fixa Simples',bm:'SELIC',publico:'Investidores em geral (dispensado de API e Termo de Adesão)'},
-  {nome:'BNB DIGITAL FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+1 du',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral'},
-  {nome:'BNB ASG FIF',min:'Não informado',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+3 du',class:'Ações',bm:'ISE-B3',publico:'Investidores em geral'},
+  {nome:'BNB AUTOMÁTICO FIF',min:'R$ 1,00',adic:'R$ 1,00',saldo:'R$ 1,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:1.6875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB SETOR PÚBLICO FIF',min:'R$ 10,00',adic:'R$ 10,00',saldo:'R$ 10,00',prazo:'D+0',class:'CDI Pós Soberano',bm:'CDI',publico:'Setor Público (Gov. Federal, Estados, Municípios, Autarquias)',taxa_global:0.9875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB CLÁSSICO FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:1.5875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB CONTA RESERVA FIF',min:'R$ 10,00',adic:'R$ 10,00',saldo:'R$ 10,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.9875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB ESPECIAL FIF',min:'R$ 10.000,00',adic:'R$ 250,00',saldo:'R$ 2.500,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.7875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB ESSENCIAL FIF',min:'R$ 1.000,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.9875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB FUNCIONÁRIO FIF',min:'R$ 100,00',adic:'R$ 10,00',saldo:'R$ 1,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Funcionários, bolsistas, aposentados e diretores do BNB; pensionistas CAPEF',taxa_global:0.5875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB SOBERANO FIF',min:'R$ 500.000,00',adic:'R$ 500,00',saldo:'R$ 5.000,00',prazo:'D+0',class:'CDI Pós Soberano',bm:'CDI',publico:'Investidores em geral',taxa_global:0.1875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB INSTITUCIONAL FIF',min:'R$ 50.000,00',adic:'R$ 500,00',saldo:'R$ 5.000,00',prazo:'D+0',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.2375,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB MÁXIMO FIF',min:'R$ 2.500,00',adic:'R$ 125,00',saldo:'R$ 500,00',prazo:'D+1 du',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.9875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB PLUS FIF',min:'R$ 25.000,00',adic:'R$ 500,00',saldo:'R$ 2.500,00',prazo:'D+1 du',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.4875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB IMA-B FIF',min:'R$ 75.000,00',adic:'R$ 500,00',saldo:'R$ 5.000,00',prazo:'D+1 du',class:'Inflação',bm:'IMA-B',publico:'Investidores em geral',taxa_global:0.1875,classe:'Renda Fixa',risco:'Médio'},
+  {nome:'BNB IPCA FIF',min:'R$ 500,00',adic:'R$ 100,00',saldo:'R$ 250,00',prazo:'D+1 du',class:'Inflação',bm:'CDI',publico:'Investidores em geral',taxa_global:0.2000,classe:'Renda Fixa',risco:'Médio'},
+  {nome:'BNB MULTIMERCADO FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+3 du',class:'Multimercados Dinâmico',bm:'CDI',publico:'Investidores em geral',taxa_global:1.2875,classe:'Multimercado',risco:'Médio'},
+  {nome:'BNB SELEÇÃO AÇÕES FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+3 du',class:'Ações Ativo',bm:'Ibovespa',publico:'Investidores em geral',taxa_global:1.9875,classe:'Ações',risco:'Alto'},
+  {nome:'BNB IRF-M 1 TÍTULOS PÚBLICOS FIF',min:'R$ 100.000,00',adic:'R$ 500,00',saldo:'R$ 10.000,00',prazo:'D+1 du',class:'Índice Pré',bm:'IRF-M 1',publico:'Investidores em geral',taxa_global:0.1875,classe:'Renda Fixa',risco:'Médio'},
+  {nome:'BNB FÁCIL FIF',min:'R$ 1,00',adic:'R$ 1,00',saldo:'R$ 1,00',prazo:'D+0',class:'Renda Fixa Simples',bm:'SELIC',publico:'Investidores em geral (dispensado de API e Termo de Adesão)',taxa_global:1.8875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB DIGITAL FIF',min:'R$ 100,00',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+1 du',class:'CDI Pós',bm:'CDI',publico:'Investidores em geral',taxa_global:0.4875,classe:'Renda Fixa',risco:'Baixo'},
+  {nome:'BNB ASG FIF',min:'Não informado',adic:'R$ 100,00',saldo:'R$ 100,00',prazo:'D+3 du',class:'Ações',bm:'ISE-B3',publico:'Investidores em geral',taxa_global:1.2875,classe:'Ações',risco:'Alto'},
 ];
 
 // ============================================================
 // MAPPINGS
 // ============================================================
-const RISCO_MAP = {
-  'BNB AUTOMÁTICO FIF':'Baixo','BNB SETOR PÚBLICO FIF':'Baixo','BNB CLÁSSICO FIF':'Baixo',
-  'BNB CONTA RESERVA FIF':'Baixo','BNB ESPECIAL FIF':'Baixo','BNB ESSENCIAL FIF':'Baixo',
-  'BNB FUNCIONÁRIO FIF':'Baixo','BNB SOBERANO FIF':'Baixo','BNB INSTITUCIONAL FIF':'Baixo',
-  'BNB MÁXIMO FIF':'Baixo','BNB PLUS FIF':'Baixo','BNB FÁCIL FIF':'Baixo','BNB DIGITAL FIF':'Baixo',
-  'BNB IMA-B FIF':'Médio','BNB IPCA FIF':'Médio','BNB IRF-M 1 TÍTULOS PÚBLICOS FIF':'Médio','BNB MULTIMERCADO FIF':'Médio',
-  'BNB SELEÇÃO AÇÕES FIF':'Alto','BNB ASG FIF':'Alto',
-};
-const CLASSE_MAP = {
-  'BNB AUTOMÁTICO FIF':'Renda Fixa','BNB SETOR PÚBLICO FIF':'Renda Fixa','BNB CLÁSSICO FIF':'Renda Fixa',
-  'BNB CONTA RESERVA FIF':'Renda Fixa','BNB ESPECIAL FIF':'Renda Fixa','BNB ESSENCIAL FIF':'Renda Fixa',
-  'BNB FUNCIONÁRIO FIF':'Renda Fixa','BNB SOBERANO FIF':'Renda Fixa','BNB INSTITUCIONAL FIF':'Renda Fixa',
-  'BNB MÁXIMO FIF':'Renda Fixa','BNB PLUS FIF':'Renda Fixa','BNB FÁCIL FIF':'Renda Fixa',
-  'BNB DIGITAL FIF':'Renda Fixa','BNB IMA-B FIF':'Renda Fixa','BNB IPCA FIF':'Renda Fixa',
-  'BNB IRF-M 1 TÍTULOS PÚBLICOS FIF':'Renda Fixa',
-  'BNB MULTIMERCADO FIF':'Multimercado','BNB SELEÇÃO AÇÕES FIF':'Ações','BNB ASG FIF':'Ações',
-};
+// Maps dinâmicos — reconstruídos a partir da planilha via reconstruirMapas()
+const RISCO_MAP  = {};
+const CLASSE_MAP = {};
 const BM_COR = {
-  'CDI':{bg:'#e8f4fd',c:'#1a5276'},'IMA-B':{bg:'#e8f8f5',c:'#1a7a3c'},
-  'IMA-B 5':{bg:'#d5f5e3',c:'#1e8449'},'IRF-M 1':{bg:'#fef9e7',c:'#b7950b'},
-  'IBOVESPA B3':{bg:'#fdf2f8',c:'#76448a'},'ISE-B3':{bg:'#fef5e7',c:'#ca6f1e'},'—':{bg:'#f2f3f4',c:'#888'},
+  'CDI':      {bg:'#e8f9f0',c:'#1a7a3c'},   // Verde
+  'IMA-B':    {bg:'#fff3e0',c:'#e65100'},   // Laranja
+  'IMA-B 5':  {bg:'#ffe8cc',c:'#bf4000'},   // Laranja escuro
+  'IRF-M 1':  {bg:'#fef9e7',c:'#b7950b'},   // Amarelo (mantido)
+  'IBOVESPA B3':{bg:'#fdecea',c:'#a6193c'}, // Vermelho
+  'ISE-B3':   {bg:'#fde8ec',c:'#8b0000'},   // Vermelho escuro
+  'SELIC':    {bg:'#e8f9f0',c:'#1a7a3c'},   // Verde (mesmo CDI)
+  '—':        {bg:'#f2f3f4',c:'#888'},
 };
+
+// Benchmarks fallback (Abril/2026)
+const DADOS_BENCH = [
+  {ind:'SELIC',        mes:1.09, ano:4.54, m12:14.83, m24:27.99},
+  {ind:'CDI',          mes:1.09, ano:4.54, m12:14.83, m24:27.99},
+  {ind:'Poupança',     mes:0.67, ano:2.66, m12:8.32,  m24:16.34},
+  {ind:'IPCA',         mes:null, ano:null, m12:null,   m24:null},
+  {ind:'IGP-M',        mes:2.73, ano:2.93, m12:0.61,  m24:9.16},
+  {ind:'IBOVESPA',     mes:-0.08,ano:16.26,m12:38.69, m24:48.75},
+  {ind:'IMA-B',        mes:1.81, ano:4.85, m12:12.35, m24:17.46},
+  {ind:'IMA-B 5',      mes:1.32, ano:5.23, m12:11.98, m24:22.47},
+  {ind:'IRF-M 1',      mes:0.99, ano:4.31, m12:14.44, m24:27.15},
+  {ind:'ISE',          mes:-1.64,ano:9.44, m12:24.83, m24:null},
+];
 
 let rentFilt = [...DADOS_RENT];
 let opFilt   = [...DADOS_OP];
@@ -742,7 +1171,7 @@ function badgeRisco(r) {
 }
 function fmtRent(v) {
   if(v===null||v===undefined||isNaN(v)) return '<span style="color:#ccc">—</span>';
-  return `<span style="color:${v>=0?'#1a7a3c':'#c0392b'};font-weight:700">${v.toFixed(2).replace('.',',')}\%</span>`;
+  return `<span style="color:#333;font-weight:600">${v.toFixed(2).replace('.',',')}</span>`;
 }
 
 // ============================================================
@@ -806,7 +1235,9 @@ function mapRent(rows) {
 function mapOp(rows) {
   return rows.filter(r=>r[0]).map(r=>
     ({nome:r[0]||'',min:r[1]||'',adic:r[2]||'',saldo:r[3]||'',
-      prazo:r[4]||'',class:r[5]||'',bm:r[6]||'',publico:r[7]||''}));
+      prazo:r[4]||'',class:r[5]||'',bm:r[6]||'',publico:r[7]||'',
+      taxa_global:parseFloat(String(r[8]||0).replace(',','.'))||0,
+      classe:r[9]||'',risco:r[10]||''}));
 }
 async function carregarGS() {
   if(!GS_ID){ renderRent(); renderOp(); return; }
@@ -814,13 +1245,25 @@ async function carregarGS() {
   if(el) el.innerHTML='<span style="color:#aaa">⏳</span>';
   try {
     const base=`https://docs.google.com/spreadsheets/d/e/${GS_PUB_ID}/pub`;
-    const [rR,rO]=await Promise.all([fetch(base+'?output=csv&gid=0'),fetch(base+'?output=csv&gid=448547987')]);
+    const [rR,rO,rB]=await Promise.all([
+      fetch(base+'?output=csv&gid=0'),
+      fetch(base+'?output=csv&gid=448547987'),
+      fetch(base+'?output=csv&gid=110182469')
+    ]);
     if(!rR.ok||!rO.ok) throw new Error('HTTP '+rR.status);
-    const [cR,cO]=await Promise.all([rR.text(),rO.text()]);
-    const rowsR=parseCSV(cR), rowsO=parseCSV(cO);
+    const [cR,cO,cB]=await Promise.all([rR.text(),rO.text(),rB.ok?rB.text():Promise.resolve('')]);
+    const rowsR=parseCSV(cR), rowsO=parseCSV(cO), rowsB=cB?parseCSV(cB):[];
     if(!rowsR.length) throw new Error('vazio');
     DADOS_RENT.length=0; mapRent(rowsR).forEach(x=>DADOS_RENT.push(x));
     DADOS_OP.length=0; mapOp(rowsO).forEach(x=>DADOS_OP.push(x));
+    // Atualiza benchmarks
+    if(rowsB.length) {
+      DADOS_BENCH.length=0;
+      rowsB.filter(r=>r[0]).forEach(r=>{
+        const n=v=>{if(!v||v==='—') return null; return parseFloat(String(v).replace(',','.'))||null;};
+        DADOS_BENCH.push({ind:r[0],mes:n(r[1]),ano:n(r[2]),m12:n(r[3]),m24:n(r[4])});
+      });
+    }
     rentFilt=[...DADOS_RENT]; opFilt=[...DADOS_OP];
     const periodo=rowsR[0]?.[13]||'';
     const elP=document.getElementById('rent-periodo');
@@ -856,37 +1299,166 @@ async function diagGS() {
 function renderRent() {
   const tbody=document.getElementById('rent-tbody');
   if(!tbody) return;
-  if(!rentFilt.length){ tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:30px;color:#aaa">Nenhum fundo encontrado.</td></tr>'; return; }
+  if(!rentFilt.length){ tbody.innerHTML='<tr><td colspan="13" style="text-align:center;padding:30px;color:#aaa">Nenhum fundo encontrado.</td></tr>'; return; }
   tbody.innerHTML=rentFilt.map(f=>`
     <tr>
       <td class="col-nome" style="cursor:pointer" onclick="abrirModal('${f.nome.replace(/'/g,"\\'")}')" title="Clique para ver informações operacionais">
         <span style="text-decoration:underline dotted;text-underline-offset:3px">${f.nome}</span>
-        <small>${CLASSE_MAP[f.nome]||''} · ${RISCO_MAP[f.nome]||''}</small>
+        <div style="margin-top:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${(() => { const cl=CLASSE_MAP[f.nome]||''; const cor=cl==='Renda Fixa'?{bg:'#e8f4fd',c:'#1a5276'}:cl==='Multimercado'?{bg:'#f3e8ff',c:'#6b3fa0'}:cl==='Ações'?{bg:'#fdecea',c:'#a6193c'}:{bg:'#f5f5f5',c:'#666'}; return cl?`<span class="bbm" style="background:${cor.bg};color:${cor.c};font-size:10px">${cl}</span>`:''; })()} ${badgeBM(f.bm)} ${badgeRisco(RISCO_MAP[f.nome]||'—')}</div>
       </td>
-      <td style="text-align:center">${badgeBM(f.bm)}</td>
       <td style="text-align:center">${fmtRent(toN(f.mes))}</td>
-      <td style="text-align:center;font-size:11px;color:#888">${f.bm_mes||'—'}</td>
+      <td style="text-align:center;font-size:11px;color:#888">${(f.bm_mes||'—').replace('%','')}</td>
       <td style="text-align:center">${fmtRent(toN(f.ano))}</td>
-      <td style="text-align:center;font-size:11px;color:#888">${f.bm_ano||'—'}</td>
+      <td style="text-align:center;font-size:11px;color:#888">${(f.bm_ano||'—').replace('%','')}</td>
       <td style="text-align:center">${fmtRent(toN(f.m12))}</td>
-      <td style="text-align:center;font-size:11px;color:#888">${f.bm_m12||'—'}</td>
+      <td style="text-align:center;font-size:11px;color:#888">${(f.bm_m12||'—').replace('%','')}</td>
       <td style="text-align:center">${fmtRent(toN(f.m24))}</td>
-      <td style="text-align:center;font-size:11px;color:#888">${f.bm_m24||'—'}</td>
+      <td style="text-align:center;font-size:11px;color:#888">${(f.bm_m24||'—').replace('%','')}</td>
       <td style="text-align:center;font-weight:700;color:#555">${f.taxa?f.taxa.toFixed(4).replace('.',',')+'%':'—'}</td>
-      <td style="text-align:center;color:#555;font-size:12px">${f.pl?'R$ '+f.pl:'—'}</td>
+      <td style="text-align:center;color:#555;font-size:12px">${f.pl||'—'}</td>
+      <td style="text-align:center;font-size:12px;font-weight:600">${APLIC_MAP[f.nome]?APLIC_MAP[f.nome].toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+      <td style="text-align:center;font-size:12px;color:#888;font-weight:600">${LIQ_MAP[f.nome]||'—'}</td>
     </tr>`).join('');
 }
+// Maps dinâmicos — reconstruídos a partir da planilha via reconstruirMapas()
+const APLIC_MAP = {};
+const LIQ_MAP   = {};
+
+// ============================================================
+// RECONSTRUÇÃO DINÂMICA DOS MAPAS A PARTIR DA PLANILHA
+// ============================================================
+function reconstruirMapas() {
+  // Limpa os mapas existentes
+  [RISCO_MAP, CLASSE_MAP, APLIC_MAP, LIQ_MAP].forEach(m => {
+    Object.keys(m).forEach(k => delete m[k]);
+  });
+
+  // Reconstrói a partir de DADOS_OP (que tem Taxa_Global, Classe, Risco)
+  DADOS_OP.forEach(f => {
+    if (!f.nome) return;
+
+    // Risco e Classe — vêm das novas colunas J e K
+    if (f.risco)  RISCO_MAP[f.nome]  = f.risco;
+    if (f.classe) CLASSE_MAP[f.nome] = f.classe;
+
+    // Aplic. mínima — parseia o valor monetário da coluna Aplic_Min
+    if (f.min) {
+      const v = parseFloat(f.min.replace(/[R$\s.]/g,'').replace(',','.'));
+      if (!isNaN(v)) APLIC_MAP[f.nome] = v;
+    }
+
+    // Liquidez — usa Prazo_Resgate diretamente
+    if (f.prazo) LIQ_MAP[f.nome] = f.prazo;
+
+    // Taxa global — sincroniza com DADOS_RENT para os simuladores
+    if (f.taxa_global > 0) {
+      const rent = DADOS_RENT.find(r => r.nome === f.nome);
+      if (rent) rent.taxa = f.taxa_global;
+    }
+  });
+
+  // Re-popula os selects dos simuladores com taxas atualizadas
+  popularSelects();
+
+  console.log('Mapas reconstruídos:', {
+    fundos: DADOS_OP.length,
+    risco: Object.keys(RISCO_MAP).length,
+    classe: Object.keys(CLASSE_MAP).length,
+    aplic: Object.keys(APLIC_MAP).length,
+    liq: Object.keys(LIQ_MAP).length,
+  });
+}
+
+// ============================================================
+// ORDENAÇÃO DA TABELA DE RENTABILIDADE
+// ============================================================
+let sortCol = null;
+let sortAsc = true;
+const sortIds = ['nome','bm','mes','ano','m12','m24','taxa','pl','aplic'];
+
+function ordenarRent(col) {
+  // Toggle direction if same col, else reset to descending
+  if (sortCol === col) {
+    sortAsc = !sortAsc;
+  } else {
+    sortCol = col;
+    sortAsc = false; // default: maior primeiro
+  }
+
+  // Clear all indicators
+  sortIds.forEach(id => {
+    const el = document.getElementById('sort-' + id);
+    if (el) el.textContent = '';
+  });
+
+  // Set active indicator
+  const el = document.getElementById('sort-' + col);
+  if (el) el.textContent = sortAsc ? ' ▲' : ' ▼';
+
+  // Sort rentFilt
+  rentFilt.sort((a, b) => {
+    let va, vb;
+    if (col === 'nome' || col === 'bm') {
+      va = (a[col] || '').toLowerCase();
+      vb = (b[col] || '').toLowerCase();
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    if (col === 'pl') {
+      va = parseFloat((a.pl || '0').replace(/\./g,'').replace(',','.')) || 0;
+      vb = parseFloat((b.pl || '0').replace(/\./g,'').replace(',','.')) || 0;
+    } else if (col === 'aplic') {
+      va = APLIC_MAP[a.nome] || 0;
+      vb = APLIC_MAP[b.nome] || 0;
+    } else {
+      va = a[col] !== null && a[col] !== undefined ? parseFloat(a[col]) : -Infinity;
+      vb = b[col] !== null && b[col] !== undefined ? parseFloat(b[col]) : -Infinity;
+    }
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  renderRent();
+}
+
 function filtrarRent() {
-  const q=document.getElementById('rent-busca').value.toLowerCase();
-  const cl=document.getElementById('rent-classe').value;
-  const bm=document.getElementById('rent-bm').value;
-  const ri=document.getElementById('rent-risco').value;
-  rentFilt=DADOS_RENT.filter(f=>
-    f.nome.toLowerCase().includes(q) &&
-    (!cl||(CLASSE_MAP[f.nome]||'')==cl) &&
-    (!bm||f.bm==bm) &&
-    (!ri||(RISCO_MAP[f.nome]||'')==ri)
-  );
+  const q   = document.getElementById('rent-busca').value.toLowerCase();
+  const cl  = document.getElementById('rent-classe').value;
+  const bm  = document.getElementById('rent-bm').value;
+  const ri  = document.getElementById('rent-risco').value;
+  const ap  = document.getElementById('rent-aplic')?.value || '';
+  const liq = document.getElementById('rent-liquidez')?.value || '';
+
+  rentFilt = DADOS_RENT.filter(f => {
+    if (!f.nome.toLowerCase().includes(q)) return false;
+    if (cl  && (CLASSE_MAP[f.nome]||'') !== cl) return false;
+    if (bm  && f.bm !== bm) return false;
+    if (ri  && (RISCO_MAP[f.nome]||'') !== ri) return false;
+    if (ap) {
+      const v = APLIC_MAP[f.nome] || 0;
+      if (ap === 'ate100'    && v > 100)    return false;
+      if (ap === 'ate1000'   && v > 1000)   return false;
+      if (ap === 'ate10000'  && v > 10000)  return false;
+      if (ap === 'acima10000' && v <= 10000) return false;
+    }
+    if (liq) {
+      const prazo = LIQ_MAP[f.nome] || '';
+      if (liq === 'D+0' && prazo !== 'D+0')          return false;
+      if (liq === 'D+1' && !prazo.startsWith('D+1')) return false;
+      if (liq === 'D+3' && !prazo.startsWith('D+3')) return false;
+    }
+    return true;
+  });
+  renderRent();
+}
+
+function limparFiltrosRent() {
+  ['rent-busca'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['rent-classe','rent-bm','rent-risco','rent-aplic','rent-liquidez'].forEach(id => {
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  // Reset sort
+  sortCol = null; sortAsc = true;
+  sortIds.forEach(id => { const el=document.getElementById('sort-'+id); if(el) el.textContent=''; });
+  rentFilt = [...DADOS_RENT];
   renderRent();
 }
 
@@ -926,6 +1498,7 @@ function abrirModal(nome) {
   const risco=RISCO_MAP[nome]||'—';
   const classe=CLASSE_MAP[nome]||'—';
   const rentRows=rent?[
+    ['Data de Início',  rent.inicio||'—'],
     ['Rentab. (mês)',   rent.mes!==null?String(rent.mes).replace('.',',')+'\%':'—'],
     ['Rentab. (no ano)',rent.ano!==null?String(rent.ano).replace('.',',')+'\%':'—'],
     ['Rentab. (12m)',   rent.m12!==null?String(rent.m12).replace('.',',')+'\%':'—'],
@@ -933,8 +1506,8 @@ function abrirModal(nome) {
     ['PL Médio 12M',    rent.pl?'R$ '+rent.pl:'—'],
   ]:[];
   const opRows=op?[
-    ['Aplic. Inicial',op.min],['Aplic. Adicional',op.adic],['Saldo Mínimo',op.saldo],
-    ['Prazo de Resgate',op.prazo],['Estratégia',op.class],['Benchmark',op.bm],['Público-Alvo',op.publico],
+    ['Estratégia',op.class],['Público-Alvo',op.publico],['Benchmark',op.bm],
+    ['Prazo de Resgate',op.prazo],['Aplic. Inicial',op.min],['Aplic. Adicional',op.adic],['Saldo Mínimo',op.saldo],
   ]:[];
   document.getElementById('modal-body').innerHTML=`
     <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
@@ -1102,218 +1675,580 @@ function aliqIR(d){if(d<=180)return 0.225;if(d<=360)return 0.20;if(d<=720)return
 function rendPoup(p,tm,d){return p*(Math.pow(1+tm/100,d/30)-1);}
 function rendFundo(p,tg,d){const tl=tg-0.035;const td=Math.pow(1+tl/100,1/252)-1;const du=Math.round(d*252/365);return p*(Math.pow(1+td,du)-1);}
 
+function atualizarPeriodosCmp() {
+  // Reseta seleção de período ao trocar de fundo
+  selecionarPeriodoCmp('', null);
+  document.getElementById('cmp-periodo-info').textContent = '';
+  ['cmp-p-mes','cmp-p-ano','cmp-p-m12','cmp-p-m24'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.remove('on');
+  });
+}
+
+function selecionarPeriodoCmp(periodo, btn) {
+  ['cmp-p-mes','cmp-p-ano','cmp-p-m12','cmp-p-m24'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.remove('on');
+  });
+  if (btn) btn.classList.add('on');
+  document.getElementById('cmp-periodo-sel').value = periodo;
+
+  // Mostra a rentabilidade do fundo para o período selecionado
+  if (!periodo) return;
+  const sel  = document.getElementById('cmp-fundo');
+  const nome = sel?.options[sel.selectedIndex]?.getAttribute('data-nome');
+  const fundo = DADOS_RENT.find(f => f.nome === nome);
+  if (!fundo) return;
+
+  const labelMap = {mes:'no mês', ano:'no ano', m12:'em 12 meses', m24:'em 24 meses'};
+  const val = fundo[periodo];
+  const poup = poupancaPeriodo(periodo);
+
+  document.getElementById('cmp-periodo-info').innerHTML =
+    val !== null && val !== undefined
+      ? `📈 <strong>${nome.replace('BNB ','')}</strong>: <span style="color:#1a7a3c;font-weight:700">${String(val).replace('.',',')}%</span> ${labelMap[periodo]} · 
+         💰 Poupança: <span style="color:#3b5bdb;font-weight:700">${poup.toFixed(2).replace('.',',')}%</span>`
+      : `⚠️ Rentabilidade de 12 ou 24 meses não disponível para este fundo.`;
+}
+
+// Regra da poupança:
+// Selic > 8,5% a.a. → poupança rende 0,5% ao mês + TR (TR ≈ 0, usamos 0,5% ao mês)
+// Selic ≤ 8,5% a.a. → poupança rende 70% da Selic
+// Referência: Lei 12.703/2012
+// Com Selic atual ~14,5% a.a. → poupança rende 0,5% ao mês
+// Poupança agora vem da aba Benchmarks da planilha
+function poupancaPeriodo(periodo) {
+  const bench = DADOS_BENCH.find(b => b.ind === 'Poupança');
+  if (!bench) return 0;
+  const map = {mes:'mes', ano:'ano', m12:'m12', m24:'m24'};
+  return bench[map[periodo]] ?? 0;
+}
+
 function calcCmp() {
-  const sel=document.getElementById('cmp-fundo');
-  const tg=parseFloat(sel.value);
-  const nome=sel.options[sel.selectedIndex].getAttribute('data-nome');
-  const valor=parseMoeda(document.getElementById('cmp-valor').value);
-  const dias=parseInt(document.getElementById('cmp-dias').value);
-  const cdi=parseFloat(document.getElementById('cmp-cdi').value);
-  const pm=parseFloat(document.getElementById('cmp-poup').value);
-  let ok=true;
-  ['ferr-cmp-valor','ferr-cmp-dias'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  if(valor<=0){document.getElementById('ferr-cmp-valor').classList.add('on');ok=false;}
-  if(!dias||dias<=0){document.getElementById('ferr-cmp-dias').classList.add('on');ok=false;}
-  if(!ok) return;
-  const rb=rendFundo(valor,tg,dias);
-  const iof=calcIOF(rb,dias);
-  const ir=(rb-iof)*aliqIR(dias);
-  const lf=valor+rb-iof-ir;
-  const gf=lf-valor;
-  const rp=rendPoup(valor,pm,dias);
-  const lp=valor+rp;
-  const isMel=gf>=rp;
-  // cards
-  const cf=document.getElementById('cc-fundo');
-  cf.classList.toggle('winner',isMel);
+  const sel    = document.getElementById('cmp-fundo');
+  const nome   = sel.options[sel.selectedIndex].getAttribute('data-nome');
+  const valor  = parseMoeda(document.getElementById('cmp-valor').value);
+  const periodo = document.getElementById('cmp-periodo-sel').value;
+
+  // Validações
+  ['ferr-cmp-valor','ferr-cmp-dias'].forEach(id => document.getElementById(id).classList.remove('on'));
+  if (valor <= 0) { document.getElementById('ferr-cmp-valor').classList.add('on'); return; }
+  if (!periodo)   { document.getElementById('ferr-cmp-dias').classList.add('on'); return; }
+
+  // Busca rentabilidade real do fundo no período
+  const fundo = DADOS_RENT.find(f => f.nome === nome);
+  const rentFundoPerc = fundo ? toN(fundo[periodo]) : null;
+  if (rentFundoPerc === null) {
+    document.getElementById('notif-cmp').textContent = '⚠️ Rentabilidade não disponível para este período.';
+    document.getElementById('notif-cmp').className = 'notif err';
+    setTimeout(() => document.getElementById('notif-cmp').className = 'notif', 4000);
+    return;
+  }
+
+  // Rentabilidade da poupança no período (regra correta)
+  const rentPoupPerc = poupancaPeriodo(periodo);
+
+  // Cálculo sobre o valor
+  // Dias de referência para IR e IOF (dias corridos aproximados)
+  const diasMap  = {mes:30, ano:252, m12:365, m24:730};
+  const diasRef  = diasMap[periodo];
+
+  // Rendimento bruto do fundo (rentabilidade divulgada é bruta)
+  const rb       = valor * rentFundoPerc / 100;
+
+  // IOF — só incide nos primeiros 29 dias
+  const iof      = calcIOF(rb, diasRef);
+
+  // IR — tabela regressiva sobre rendimento líquido de IOF
+  const irAliq   = aliqIR(diasRef);
+  const ir       = (rb - iof) * irAliq;
+
+  // Rendimento líquido e valor final
+  const rendLiq  = rb - iof - ir;
+  const liqFundo = valor + rendLiq;
+  const gf       = rendLiq;
+
+  // Poupança — isenta de IR e IOF
+  const rp       = valor * rentPoupPerc / 100;
+  const lp       = valor + rp;
+
+  const labelMap = {mes:'no mês', ano:'no ano', m12:'em 12 meses', m24:'em 24 meses'};
+  const periodoLabel = labelMap[periodo];
+
+  const isMel = gf >= rp;
+
+  // ── Cards ──
+  const cf = document.getElementById('cc-fundo');
+  cf.classList.toggle('winner', isMel);
   cf.querySelector('.win-badge')?.remove();
-  if(isMel){const b=document.createElement('div');b.className='win-badge';b.textContent='✓ Melhor opção';cf.appendChild(b);}
-  document.getElementById('cc-f-nome').textContent=nome;
-  document.getElementById('cc-f-bruto').textContent=fmt(rb);
-  document.getElementById('cc-f-trib').innerHTML=`IOF: ${fmt(iof)} · IR (${(aliqIR(dias)*100).toFixed(1)}%): ${fmt((rb-iof)*aliqIR(dias))}`;
-  document.getElementById('cc-f-liq').textContent=fmt(lf);
-  const df=gf-rp;
-  document.getElementById('cc-f-ganho').innerHTML=`<span style="color:${df>=0?'#1a7a3c':'#c0392b'}">${df>=0?'▲':'▼'} ${fmt(Math.abs(df))} vs Poupança</span>`;
-  const cp=document.getElementById('cc-poup');
-  cp.classList.toggle('winner',!isMel);
+  if (isMel) { const b=document.createElement('div'); b.className='win-badge'; b.textContent='🏆 Melhor opção'; cf.appendChild(b); }
+  document.getElementById('cc-f-nome').textContent = nome;
+  document.getElementById('cc-f-bruto').textContent = fmt(rb);
+  document.getElementById('cc-f-trib').innerHTML = diasRef<=29
+    ? `(-) IOF: ${fmt(iof)} · (-) IR (${(irAliq*100).toFixed(1)}%): ${fmt(ir)}`
+    : `(-) IR (${(irAliq*100).toFixed(1)}%): ${fmt(ir)}`;
+  document.getElementById('cc-f-liq').textContent = fmt(liqFundo);
+  const df = gf - rp;
+  const ds = gf; // vs saldo parado = rendimento líquido inteiro
+  document.getElementById('cc-f-ganho').innerHTML =
+    `<span style="color:#1a7a3c;display:block">▲ ${fmt(ds)} vs Saldo Parado</span>` +
+    `<span style="color:${df>=0?'#1a7a3c':'#c0392b'};display:block">${df>=0?'▲':'▼'} ${fmt(Math.abs(df))} vs Poupança</span>`;
+
+  const cp = document.getElementById('cc-poup');
+  cp.classList.toggle('winner', !isMel);
   cp.querySelector('.win-badge')?.remove();
-  if(!isMel){const b=document.createElement('div');b.className='win-badge';b.textContent='✓ Melhor opção';cp.appendChild(b);}
-  document.getElementById('cc-p-bruto').textContent=fmt(rp);
-  document.getElementById('cc-p-liq').textContent=fmt(lp);
-  document.getElementById('cc-p-ganho').innerHTML='<span style="color:#888">Base de comparação</span>';
-  document.getElementById('cc-s-liq').textContent=fmt(valor);
-  document.getElementById('cc-s-ganho').innerHTML=`▼ ${fmt(rp)} a menos que a Poupança`;
-  // tabela
-  const linhas=[
-    {alt:'🏦 '+nome,ini:valor,bruto:rb,iof:iof,ir:(rb-iof)*aliqIR(dias),aliq:(aliqIR(dias)*100).toFixed(1)+'%',liq:lf,dest:true},
-    {alt:'💰 Poupança',ini:valor,bruto:rp,iof:0,ir:0,aliq:'Isento',liq:lp,dest:false},
-    {alt:'😴 Saldo Parado',ini:valor,bruto:0,iof:0,ir:0,aliq:'—',liq:valor,dest:false},
+  if (!isMel) { const b=document.createElement('div'); b.className='win-badge'; b.textContent='🏆 Melhor opção'; cp.appendChild(b); }
+  document.getElementById('cc-p-bruto').textContent = fmt(rp);
+  document.getElementById('cc-p-liq').textContent   = fmt(lp);
+  const dpoup = gf - rp; // diferença fundo líquido vs poupança
+  document.getElementById('cc-p-ganho').innerHTML = dpoup >= 0
+    ? `<span style="color:#c0392b">▼ ${fmt(dpoup)} a menos que o Fundo</span>`
+    : `<span style="color:#1a7a3c">▲ ${fmt(Math.abs(dpoup))} a mais que o Fundo</span>`;
+  document.getElementById('cc-s-liq').textContent   = fmt(valor);
+  document.getElementById('cc-s-ganho').innerHTML = `<span style="color:#c0392b">▼ ${fmt(gf)} a menos que o Fundo</span>`;
+
+  // ── Tabela tributária ──
+  const linhas = [
+    {alt:'🏦 '+nome, ini:valor, bruto:rb, iof:iof, ir:ir, aliq:(irAliq*100).toFixed(1)+'%', liq:liqFundo, dest:true},
+    {alt:'💰 Poupança', ini:valor, bruto:rp, iof:0, ir:0, aliq:'Isento', liq:lp, dest:false},
+    {alt:'😴 Saldo Parado', ini:valor, bruto:0, iof:0, ir:0, aliq:'—', liq:valor, dest:false},
   ];
-  document.getElementById('cmp-tbody').innerHTML=linhas.map(l=>`
+  document.getElementById('cmp-tbody').innerHTML = linhas.map(l => `
     <tr style="${l.dest?'background:#f0fff4;font-weight:700':''}">
       <td style="padding:9px 12px;font-weight:700">${l.alt}</td>
       <td style="text-align:center;padding:9px 8px">${fmt(l.ini)}</td>
-      <td style="text-align:center;padding:9px 8px;color:#555">${fmt(l.bruto)}</td>
+      <td style="text-align:center;padding:9px 8px;color:#555">${typeof l.bruto==='number'?fmt(l.bruto):l.bruto}</td>
       <td style="text-align:center;padding:9px 8px;color:#e07a10">${l.iof>0?'- '+fmt(l.iof):'—'}</td>
       <td style="text-align:center;padding:9px 8px;color:#c0392b">${l.ir>0?'- '+fmt(l.ir):'—'}</td>
       <td style="text-align:center;padding:9px 8px;color:#888">${l.aliq}</td>
       <td style="text-align:center;padding:9px 8px;font-weight:800;color:#1a7a3c">${fmt(l.liq)}</td>
     </tr>`).join('');
-  // gráfico
-  const ctx=document.getElementById('cmp-chart').getContext('2d');
-  if(graficoCmp) graficoCmp.destroy();
-  graficoCmp=new Chart(ctx,{
+
+  // ── Gráfico ──
+  // Escala: começa próximo ao menor valor para evidenciar a diferença
+  const valMin = Math.min(liqFundo, lp, valor);
+  const valMax = Math.max(liqFundo, lp, valor);
+  const margem = (valMax - valMin) * 0.40;
+  const yMin   = Math.max(0, valMin - margem * 1.5);
+  const yMax   = valMax + margem;
+
+  const ctx = document.getElementById('cmp-chart').getContext('2d');
+  if (graficoCmp) graficoCmp.destroy();
+  graficoCmp = new Chart(ctx, {
     type:'bar',
-    data:{labels:[nome.replace('BNB ','').replace(' FIF',''),'Poupança','Saldo Parado'],
+    data:{
+      labels:[nome.replace('BNB ','').replace(' FIF',''), 'Poupança', 'Saldo Parado'],
       datasets:[
-        {label:'Valor Inicial',data:[valor,valor,valor],backgroundColor:['#e8f5e9','#e8f0ff','#fff0f0'],borderColor:['#c8e6c9','#c5d0f5','#ffcdd2'],borderWidth:1,borderRadius:4},
-        {label:'Rendimento Líquido',data:[gf,rp,0],backgroundColor:['#1a7a3c','#3b5bdb','#ccc'],borderRadius:4}
-      ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom',labels:{font:{size:12,family:'Sora'}}},
+        {
+          label:'Valor Inicial',
+          data:[valor, valor, valor],
+          backgroundColor:['rgba(166,25,60,.15)', 'rgba(246,200,75,.2)', 'rgba(176,176,176,.2)'],
+          borderColor:    ['rgba(166,25,60,.3)',  'rgba(200,160,40,.3)', 'rgba(136,136,136,.3)'],
+          borderWidth:1, borderRadius:4
+        },
+        {
+          label:'Rendimento Líquido',
+          data:[gf, rp, 0],
+          backgroundColor:['#A6193C', '#F6C84B', '#B0B0B0'],
+          borderColor:    ['#7a1230', '#c9a030', '#888888'],
+          borderWidth:1, borderRadius:4
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom', labels:{font:{size:12,family:'Sora'}}},
         tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}},
-        datalabels:{display:ctx=>ctx.datasetIndex===1&&ctx.raw>0,anchor:'end',align:'top',formatter:v=>fmt(v),font:{weight:'bold',size:12},color:'#333'}},
-      scales:{x:{stacked:true,grid:{display:false},ticks:{font:{family:'Sora',size:12}}},y:{stacked:true,beginAtZero:true,ticks:{display:false},grid:{display:false}}}}
+        datalabels:{
+          display: ctx => ctx.datasetIndex === 1,
+          anchor:'end', align:'top',
+          formatter:(v, ctx) => {
+            const total = [liqFundo, lp, valor][ctx.dataIndex];
+            return fmt(total);
+          },
+          font:{weight:'bold', size:12, family:'Sora'},
+          color:'#333'
+        }
+      },
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{font:{family:'Sora',size:12,weight:'bold'}} },
+        y:{
+          stacked:true,
+          min: yMin,
+          max: yMax,
+          display: false,
+          grid:{ display:false }
+        }
+      }
+    }
   });
-  // leitura
-  const pt=dias<30?`${dias} dias`:dias<365?`${Math.round(dias/30)} ${Math.round(dias/30)===1?'mês':'meses'}`:`${(dias/365).toFixed(1)} ano(s)`;
-  const vt=gf-rp;
-  document.getElementById('cmp-leitura').innerHTML=`<strong>💬 ARGUMENTO COMERCIAL:</strong><br>Em <strong>${pt}</strong>, com <strong>${fmt(valor)}</strong> aplicados no <strong>${nome}</strong>, o cliente recebe <strong>${fmt(lf)}</strong> líquidos — ${vt>=0?`<strong style="color:#1a7a3c">${fmt(vt)} a mais</strong>`:`<strong style="color:#c0392b">${fmt(Math.abs(vt))} a menos</strong>`} do que na Poupança, mesmo após IR${dias<30?' e IOF':''}. Deixar o dinheiro parado representaria uma perda de <strong style="color:#c0392b">${fmt(rp)}</strong>.`;
-  document.getElementById('cmp-res').style.display='block';
-  document.getElementById('cmp-vazio').style.display='none';
+
+  // ── Leitura comercial ──
+  const vt = gf - rp;
+  document.getElementById('cmp-leitura').innerHTML =
+    `<strong>💬 ARGUMENTO COMERCIAL:</strong><br>
+    Considerando a rentabilidade bruta de <strong>${String(rentFundoPerc).replace('.',',')}%</strong> ${periodoLabel}, em <strong>${fmt(valor)}</strong> aplicados no <strong>${nome}</strong>, após descontar ${diasRef<=29?`IOF (${fmt(iof)}) e `:''}IR de ${(irAliq*100).toFixed(1)}% (${fmt(ir)}), o cliente recebe <strong>${fmt(liqFundo)}</strong> líquidos — ${vt >= 0 ? `<strong style="color:#1a7a3c">${fmt(vt)} a mais</strong> do que na Poupança` : `<strong style="color:#c0392b">${fmt(Math.abs(vt))} a menos</strong> do que na Poupança`}. Além disso, deixar o dinheiro parado no mesmo período representaria abrir mão de <strong style="color:#c0392b">${fmt(gf)}</strong>.`;
+
+  document.getElementById('cmp-res').style.display = 'block';
+  document.getElementById('cmp-vazio').style.display = 'none';
 }
+
 function limparCmp() {
-  ['cmp-valor','cmp-dias'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('cmp-res').style.display='none';
-  document.getElementById('cmp-vazio').style.display='flex';
-  document.getElementById('notif-cmp').className='notif';
-  document.querySelectorAll('#comparativo .btn-prazo').forEach(b=>b.classList.remove('on'));
+  document.getElementById('cmp-valor').value = '';
+  document.getElementById('cmp-periodo-sel').value = '';
+  document.getElementById('cmp-periodo-info').textContent = '';
+  ['cmp-p-mes','cmp-p-ano','cmp-p-m12','cmp-p-m24'].forEach(id => {
+    const b = document.getElementById(id); if(b) b.classList.remove('on');
+  });
+  document.getElementById('cmp-res').style.display = 'none';
+  document.getElementById('cmp-vazio').style.display = 'flex';
+  document.getElementById('notif-cmp').className = 'notif';
   if(graficoCmp){graficoCmp.destroy();graficoCmp=null;}
 }
 
 // ============================================================
 // MEGA SIMULADOR
 // ============================================================
-function calcMega() {
-  const sel=document.getElementById('mg-fundo');
-  const tg=parseFloat(sel.value);
-  const nome=sel.options[sel.selectedIndex].getAttribute('data-nome');
-  const cliente=document.getElementById('mg-nome').value.trim()||'Cliente';
-  const valor=parseMoeda(document.getElementById('mg-valor').value);
-  const prazo=parseInt(document.getElementById('mg-prazo').value);
-  const meta=parseMoeda(document.getElementById('mg-meta').value);
-  const smedio=parseMoeda(document.getElementById('mg-smedio').value);
-  const sposicao=parseMoeda(document.getElementById('mg-sposicao').value);
-  const dtotal=parseInt(document.getElementById('mg-dtotal').value)||252;
-  const ddec=parseInt(document.getElementById('mg-ddec').value)||0;
-  let ok=true;
-  ['ferr-mg-valor','ferr-mg-prazo'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  if(valor<=0){document.getElementById('ferr-mg-valor').classList.add('on');ok=false;}
-  if(!prazo||prazo<=0){document.getElementById('ferr-mg-prazo').classList.add('on');ok=false;}
-  if(!ok) return;
-  const rb=rendFundo(valor,tg,prazo);
-  const iof=calcIOF(rb,prazo);
-  const ir=(rb-iof)*aliqIR(prazo);
-  const rliq=rb-iof-ir;
-  const vfinal=valor+rliq;
-  const tl=tg-0.035;
-  const du=Math.round(prazo*252/365);
-  const recAg=valor*(tl/100)/252*du;
-  const pt=prazo<30?`${prazo} dias`:prazo<365?`${Math.round(prazo/30)} meses`:`${(prazo/365).toFixed(1)} ano(s)`;
-  let pct=0,contrib=null,esf0=null,esf1=null,drest=null;
-  if(meta>0&&ddec>0){
-    drest=dtotal-ddec;
-    if(drest>0){
-      esf0=Math.max(0,(meta*dtotal-smedio*ddec-drest*sposicao)*2/(drest*(drest+1)));
-      const npos=sposicao+valor;
-      esf1=Math.max(0,(meta*dtotal-smedio*ddec-drest*npos)*2/(drest*(drest+1)));
-      contrib=esf0-esf1;
-      const proj=(smedio*ddec+npos*drest)/dtotal;
-      pct=Math.min(100,(proj/meta)*100);
-    }
-  } else if(meta>0&&smedio>0){ pct=Math.min(100,(smedio/meta)*100); }
-  // header
-  document.getElementById('mg-h-nome').textContent=cliente;
-  document.getElementById('mg-h-sub').textContent=`${nome} · ${fmt(valor)} · ${pt}`;
-  document.getElementById('mg-h-badges').innerHTML=`<span class="mbadge mb-v">💰 ${fmt(valor)}</span><span class="mbadge mb-f">🏦 ${nome.replace('BNB ','')}</span><span class="mbadge mb-p">📅 ${pt}</span>`;
-  // kpis
-  document.getElementById('mg-rentliq').textContent=fmt(rliq);
-  document.getElementById('mg-rentliq-sub').textContent=`${((rliq/valor)*100).toFixed(2).replace('.',',')}% líquido · Bruto: ${fmt(rb)}`;
-  document.getElementById('mg-receita').textContent=fmt(recAg);
-  document.getElementById('mg-receita-sub').textContent=`Taxa líq.: ${tl.toFixed(4)}% a.a. · ${du} d.u.`;
-  document.getElementById('mg-contrib').textContent=contrib!==null?fmt(contrib>0?contrib*(drest||0):valor):fmt(valor);
-  document.getElementById('mg-contrib-sub').textContent=contrib!==null&&contrib>0?`Reduz esforço diário em ${fmt(contrib)}`:'Preencha a meta para análise detalhada';
-  // detalhe
-  document.getElementById('mg-detalhe').innerHTML=[
-    ['Valor Aplicado',fmt(valor)],['Rendimento Bruto',fmt(rb)],
-    ['(-) IOF',prazo<30?'- '+fmt(iof):'Isento'],[`(-) IR (${(aliqIR(prazo)*100).toFixed(1)}%)`,'- '+fmt(ir)],
-    ['Rendimento Líquido',fmt(rliq)],['Valor Final do Cliente',fmt(vfinal)],
-    ['Receita da Agência',fmt(recAg)],['Taxa Global a.a.',tg.toFixed(4).replace('.',',')+'\%'],['Prazo',pt],
-  ].map(([k,v])=>`<tr class="mdr"><td>${k}</td><td>${v}</td></tr>`).join('');
-  // velocimetro
-  document.getElementById('mg-perc').innerHTML=pct.toFixed(1).replace('.',',')+'\%<span>da Meta Atingida</span>';
-  document.getElementById('mg-meta-status').innerHTML=pct>=100?'<span style="color:#1a7a3c">🎉 Meta atingida!</span>':meta>0?`<span style="color:#888">Faltam ${fmt(meta*(1-pct/100))} para a meta</span>`:'<span style="color:#ccc">Informe a meta para ver o progresso</span>';
-  const esp=0.75,esq=Math.max(0,pct-esp/2),dir=Math.max(0,100-pct-esp/2);
-  if(mgVeloc) mgVeloc.destroy();
-  mgVeloc=new Chart(document.getElementById('mg-veloc').getContext('2d'),{
-    type:'doughnut',data:{datasets:[
-      {data:[20,20,20,20,20],backgroundColor:['#A6193C','#e55a1b','#FF6B43','#EDE818','#4DBC44'],borderWidth:2,borderColor:'#fff'},
-      {data:[esq,esp,dir],backgroundColor:['rgba(0,0,0,0)','#1a1a2e','rgba(0,0,0,0)'],borderWidth:0,weight:1}
-    ]},options:{responsive:true,maintainAspectRatio:false,circumference:180,rotation:270,cutout:'52%',plugins:{legend:{display:false},tooltip:{enabled:false},datalabels:{display:false}}}
-  });
-  // grafico fundos
-  const top6=DADOS_RENT.filter(f=>f.taxa>0).slice(0,6);
-  if(mgFundos) mgFundos.destroy();
-  mgFundos=new Chart(document.getElementById('mg-chart-f').getContext('2d'),{
-    type:'bar',
-    data:{labels:top6.map(f=>f.nome.replace('BNB ','').replace(' FIF','')),
-      datasets:[{label:'Receita (R$)',data:top6.map(f=>valor*((f.taxa-0.035)/100)/252*du),
-        backgroundColor:top6.map(f=>f.nome===nome?'#A6193C':'#c5d0f5'),borderRadius:5}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}},datalabels:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10,family:'Sora'}}},y:{beginAtZero:true,grace:'15%',ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR'),font:{size:10}},grid:{color:'#f0f0f0'}}}}
-  });
-  // grafico evolucao
-  const pts=[1,30,60,90,180,270,365,548,730].filter(d=>d<=prazo+1);
-  if(!pts.includes(prazo)) pts.push(prazo); pts.sort((a,b)=>a-b);
-  if(mgEvoluc) mgEvoluc.destroy();
-  mgEvoluc=new Chart(document.getElementById('mg-chart-e').getContext('2d'),{
-    type:'line',
-    data:{labels:pts.map(d=>d<30?`${d}d`:d<365?`${Math.round(d/30)}m`:`${(d/365).toFixed(1)}a`),
-      datasets:[
-        {label:nome.replace('BNB ',''),data:pts.map(d=>{const rb2=rendFundo(valor,tg,d);const i=calcIOF(rb2,d);const r=(rb2-i)*aliqIR(d);return valor+rb2-i-r;}),borderColor:'#A6193C',backgroundColor:'rgba(166,25,60,.08)',borderWidth:2.5,tension:0.3,fill:true},
-        {label:'Poupança',data:pts.map(d=>valor+rendPoup(valor,0.617,d)),borderColor:'#3b5bdb',backgroundColor:'rgba(59,91,219,.05)',borderWidth:2,tension:0.3,borderDash:[5,4],fill:true}
-      ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11,family:'Sora'}}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}},datalabels:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR'),font:{size:10}},grid:{color:'#f5f5f5'}}}}
-  });
-  const vp=rliq-rendPoup(valor,0.617,prazo);
-  const mi=contrib!==null&&meta>0?`<br><br>A aplicação reduz o esforço diário de captação de <strong>${fmt(esf0)}</strong> para <strong>${fmt(esf1)}</strong>.`:'';
-  document.getElementById('mg-leitura').innerHTML=`<strong>${cliente}</strong> aplicou <strong>${fmt(valor)}</strong> no <strong>${nome}</strong> por <strong>${pt}</strong>.<br><br>📌 <strong>Para o cliente:</strong> O investimento renderá <strong>${fmt(rliq)}</strong> líquidos após IR${prazo<30?' e IOF':''}, totalizando <strong>${fmt(vfinal)}</strong> — ${vp>=0?`<strong style="color:#1a7a3c">${fmt(vp)} a mais</strong>`:`<strong style="color:#c0392b">${fmt(Math.abs(vp))} a menos</strong>`} do que na Poupança.<br><br>🏦 <strong>Para a agência:</strong> Esta operação gera <strong style="color:#e07a10">${fmt(recAg)}</strong> de receita.${mi}`;
-  document.getElementById('mg-dash').style.display='block';
-  document.getElementById('mg-vazio').style.display='none';
-  document.getElementById('mg-dash').scrollIntoView({behavior:'smooth',block:'start'});
+function toggleAgencia() {
+  const el  = document.getElementById('agencia-extra');
+  const arr = document.getElementById('agencia-arrow');
+  const open = el.style.display === 'none';
+  el.style.display  = open ? 'block' : 'none';
+  arr.textContent   = open ? '▲' : '▼';
 }
+
+function selecionarPrazoMega(periodo, btn) {
+  ['mg-p-mes','mg-p-ano','mg-p-m12','mg-p-m24'].forEach(id => {
+    const b = document.getElementById(id); if(b) b.classList.remove('on');
+  });
+  if (btn) btn.classList.add('on');
+  document.getElementById('mg-periodo').value = periodo;
+  autoCalcMega();
+}
+
+function autoCalcMega() {
+  const sel     = document.getElementById('mg-fundo');
+  if (!sel || !sel.options.length) return;
+  const nome    = sel.options[sel.selectedIndex]?.getAttribute('data-nome') || '';
+  const valor   = parseMoeda(document.getElementById('mg-valor').value);
+  const periodo = document.getElementById('mg-periodo').value;
+
+  if (valor <= 0 || !periodo) {
+    document.getElementById('mg-dash').style.display  = 'none';
+    document.getElementById('mg-vazio').style.display = 'flex';
+    return;
+  }
+
+  // ── MOTOR 1: Simulador de Rentabilidade ──────────────────────────────
+  // Reutiliza exatamente a mesma lógica do calcCmp()
+  const fundo    = DADOS_RENT.find(f => f.nome === nome);
+  const tg       = parseFloat(sel.value);
+  const rentPerc = fundo ? (toN(fundo[periodo]) ?? null) : null;
+
+  if (rentPerc === null) {
+    document.getElementById('mg-dash').style.display  = 'none';
+    document.getElementById('mg-vazio').style.display = 'flex';
+    document.getElementById('mg-vazio').innerHTML = `
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:14px;font-weight:700;color:#bbb">Rentabilidade não disponível para este período</div>`;
+    return;
+  }
+
+  const diasMap  = {mes:30, ano:252, m12:365, m24:730};
+  const diasRef  = diasMap[periodo];
+  const rb       = valor * rentPerc / 100;
+  const iof      = calcIOF(rb, diasRef);
+  const ir       = (rb - iof) * aliqIR(diasRef);
+  const rliq     = rb - iof - ir;
+  const vfinal   = valor + rliq;
+  const rentPoup = poupancaPeriodo(periodo);
+  const rp       = valor * rentPoup / 100;
+  const vspoup   = rliq - rp;
+
+  // ── MOTOR 2: Simulador de Receitas ───────────────────────────────────
+  // Reutiliza exatamente calcR() do calcReceita()
+  // du proporcional ao período
+  const duMap  = {mes:21, ano:252, m12:252, m24:504};
+  const du     = duMap[periodo];
+  const tl     = tg - 0.035;
+  const recAg  = valor * (tl / 100) / 252 * du;
+
+  // ── MOTOR 3: Simulador de Saldo Médio ────────────────────────────────
+  // Reutiliza exatamente a fórmula do calcSaldo()
+  const meta     = parseMoeda(document.getElementById('mg-meta').value);
+  const smedio   = parseMoeda(document.getElementById('mg-smedio').value);
+  const sposicao = parseMoeda(document.getElementById('mg-sposicao').value);
+  const dtotal   = parseInt(document.getElementById('mg-dtotal').value) || 252;
+  const ddec     = parseInt(document.getElementById('mg-ddec').value) || 0;
+  const temAgencia = meta > 0 && ddec > 0 && sposicao > 0;
+
+  let contrib=null, esf0=null, esf1=null, drest=null, pct=0;
+  if (temAgencia) {
+    drest = dtotal - ddec;
+    if (drest > 0) {
+      // Esforço ANTES da aplicação (mesmo cálculo do calcSaldo)
+      esf0  = Math.max(0, (meta*dtotal - smedio*ddec - drest*sposicao)*2 / (drest*(drest+1)));
+      // Esforço DEPOIS (com o valor aplicado somado à posição)
+      const npos = sposicao + valor;
+      esf1  = Math.max(0, (meta*dtotal - smedio*ddec - drest*npos)*2 / (drest*(drest+1)));
+      contrib = esf0 - esf1;
+      const proj = (smedio*ddec + npos*drest) / dtotal;
+      pct = Math.min(100, (proj/meta)*100);
+    }
+  } else if (meta > 0 && smedio > 0) {
+    pct = Math.min(100, (smedio/meta)*100);
+  }
+
+  // ── Labels ──
+  const labelMap = {mes:'no mês', ano:'no ano', m12:'em 12 meses', m24:'em 24 meses'};
+  const pt       = labelMap[periodo];
+  const cliente  = document.getElementById('mg-nome').value.trim() || 'Análise';
+
+  // ── RENDER HEADER ──
+  document.getElementById('mg-h-nome').textContent = cliente;
+  document.getElementById('mg-h-badges').innerHTML =
+    `<span class="mbadge mb-v">💰 ${fmt(valor)}</span>
+     <span class="mbadge mb-f">🏦 ${nome.replace('BNB ','').replace(' FIF','')}</span>
+     <span class="mbadge mb-p">📅 ${pt}</span>`;
+
+  // ── BLOCO CLIENTE (Motor 1) ──
+  document.getElementById('mg-vfinal').textContent     = fmt(vfinal);
+  document.getElementById('mg-vfinal-sub').textContent  = `Aplicado: ${fmt(valor)} · IR${diasRef<=29?' + IOF':''}`;
+  document.getElementById('mg-rentliq').textContent    = fmt(rliq);
+  document.getElementById('mg-rentliq-sub').innerHTML  =
+    `Bruto: ${fmt(rb)}<br>${diasRef<=29?`IOF: ${fmt(iof)} · `:''}IR ${(aliqIR(diasRef)*100).toFixed(1)}%: ${fmt(ir)}`;
+  document.getElementById('mg-vspoup').textContent     = (vspoup >= 0 ? '+' : '') + fmt(vspoup);
+  document.getElementById('mg-vspoup').style.color     = vspoup >= 0 ? '#1a7a3c' : '#c0392b';
+  document.getElementById('mg-vspoup-sub').textContent = `Poupança renderia ${fmt(rp)} (${rentPoup.toFixed(2).replace('.',',')}%)`;
+
+  // Gráfico evolução — usa a rentabilidade REAL do fundo (mesma fonte dos KPIs)
+  // Taxa diária derivada da rentabilidade real do período (não da taxa global a.a.)
+  const dailyRate = Math.pow(1 + rentPerc/100, 1/diasRef) - 1;
+  const pts = {mes:[0,7,14,21,30], ano:[0,30,90,150,210,252], m12:[0,30,90,180,270,365], m24:[0,90,180,365,548,730]}[periodo];
+  const evolFundo = pts.map(d => {
+    const rb2 = valor * (Math.pow(1 + dailyRate, d) - 1);
+    const i   = calcIOF(rb2, d);
+    const r   = (rb2 - i) * aliqIR(d);
+    return valor + rb2 - i - r;
+  });
+  // Poupança: capitalização mensal composta correta
+  const evolPoup = pts.map(d => valor + rendPoup(valor, poupancaPeriodo('mes'), d));
+  const evolLbls  = pts.map(d => d===0?'Hoje':d<30?`${d}d`:d<365?`${Math.round(d/30)}m`:`${(d/365).toFixed(1)}a`);
+  if(mgEvoluc) mgEvoluc.destroy();
+  mgEvoluc = new Chart(document.getElementById('mg-chart-e').getContext('2d'), {
+    type:'line',
+    data:{ labels:evolLbls, datasets:[
+      {label:nome.replace('BNB ','').replace(' FIF',''), data:evolFundo,
+        borderColor:'#A6193C', backgroundColor:'rgba(166,25,60,.08)', borderWidth:2.5, tension:0.3, fill:true, pointRadius:3},
+      {label:'Poupança', data:evolPoup,
+        borderColor:'#F6C84B', backgroundColor:'rgba(246,200,75,.07)', borderWidth:2, tension:0.3, borderDash:[5,4], fill:true, pointRadius:2}
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:'bottom',labels:{font:{size:11,family:'Sora'}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.raw)}`}}, datalabels:{display:false}},
+      scales:{ x:{grid:{display:false},ticks:{font:{size:10}}},
+        y:{ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}),font:{size:10}},grid:{color:'#f5f5f5'}}}}
+  });
+
+  // ── BLOCO AGÊNCIA (Motor 2 + Motor 3) ──
+  document.getElementById('mg-receita').textContent     = fmt(recAg);
+  document.getElementById('mg-receita-sub').textContent  = `Taxa global ${tg.toFixed(4).replace('.',',')}% a.a. · ${du} d.u.`;
+
+  if (temAgencia && contrib !== null) {
+    document.getElementById('mg-contrib').textContent     = fmt(Math.abs(contrib) * (drest||0));
+    document.getElementById('mg-contrib-sub').textContent  = 'Contribuição total ao saldo médio';
+    document.getElementById('mg-esforco-red').textContent  = contrib > 0 ? fmt(contrib) : '🎉 Meta garantida';
+    document.getElementById('mg-esforco-sub').textContent   = contrib > 0
+      ? `De ${fmt(esf0)} → ${fmt(esf1)}/dia` : 'Aplicação já garante a meta!';
+  } else {
+    ['mg-contrib','mg-esforco-red'].forEach(id => document.getElementById(id).textContent = '—');
+    ['mg-contrib-sub','mg-esforco-sub'].forEach(id => document.getElementById(id).textContent = 'Preencha os dados da agência');
+  }
+
+  // Velocímetro + gráfico receita (só com dados da agência)
+  document.getElementById('mg-veloc-wrap').style.display = temAgencia ? 'block' : 'none';
+  if (temAgencia) {
+    document.getElementById('mg-perc').innerHTML = pct.toFixed(1).replace('.',',')+'%<span>da Meta</span>';
+    document.getElementById('mg-meta-status').innerHTML = pct >= 100
+      ? '<span style="color:#1a7a3c">🎉 Meta atingida!</span>'
+      : `<span style="color:#888">Faltam ${fmt(meta*(1-pct/100))}</span>`;
+    const esp=0.75, esq=Math.max(0,pct-esp/2), dir=Math.max(0,100-pct-esp/2);
+    if(mgVeloc) mgVeloc.destroy();
+    mgVeloc = new Chart(document.getElementById('mg-veloc').getContext('2d'), {
+      type:'doughnut', data:{datasets:[
+        {data:[20,20,20,20,20],backgroundColor:['#A6193C','#e55a1b','#FF6B43','#EDE818','#4DBC44'],borderWidth:2,borderColor:'#fff'},
+        {data:[esq,esp,dir],backgroundColor:['rgba(0,0,0,0)','#1a1a2e','rgba(0,0,0,0)'],borderWidth:0,weight:1}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,circumference:180,rotation:270,cutout:'52%',
+        plugins:{legend:{display:false},tooltip:{enabled:false},datalabels:{display:false}}}
+    });
+    const top5 = DADOS_RENT.filter(f=>f.taxa>0).slice(0,5);
+    if(mgFundos) mgFundos.destroy();
+    mgFundos = new Chart(document.getElementById('mg-chart-f').getContext('2d'), {
+      type:'bar',
+      data:{ labels:top5.map(f=>f.nome.replace('BNB ','').replace(' FIF','')),
+        datasets:[{data:top5.map(f=>valor*((f.taxa-0.035)/100)/252*du),
+          backgroundColor:top5.map(f=>f.nome===nome?'#A6193C':'#f0d0d5'), borderRadius:5}]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}},datalabels:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:9,family:'Sora'}}},
+          y:{beginAtZero:true,ticks:{callback:v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0}),font:{size:9}},grid:{color:'#f0f0f0'}}}}
+    });
+  }
+
+  // ── ARGUMENTO COMERCIAL ──
+  const agTexto = temAgencia && contrib !== null && contrib > 0
+    ? ` Para a agência, além da receita de <strong style="color:#e07a10">${fmt(recAg)}</strong>, a aplicação reduz o esforço diário de captação de <strong>${fmt(esf0)}</strong> para <strong>${fmt(esf1)}</strong>.`
+    : ` Para a agência, esta operação gera uma receita de <strong style="color:#e07a10">${fmt(recAg)}</strong>.`;
+  document.getElementById('mg-leitura').innerHTML =
+    `Considerando a rentabilidade de <strong>${String(rentPerc).replace('.',',')}%</strong> ${pt}, em <strong>${fmt(valor)}</strong> aplicados no <strong>${nome}</strong>, após descontar ${diasRef<=29?`IOF (${fmt(iof)}) e `:''}IR de ${(aliqIR(diasRef)*100).toFixed(1)}% (${fmt(ir)}), o cliente recebe <strong style="color:#1a7a3c">${fmt(vfinal)}</strong> líquidos — ${vspoup>=0?`<strong style="color:#1a7a3c">${fmt(vspoup)} a mais</strong>`:`<strong style="color:#c0392b">${fmt(Math.abs(vspoup))} a menos</strong>`} do que na Poupança.${agTexto}`;
+
+  document.getElementById('mg-dash').style.display  = 'block';
+  document.getElementById('mg-vazio').style.display = 'none';
+}
+
+function calcMega() { autoCalcMega(); }
+
 function limparMega() {
-  ['mg-nome','mg-valor','mg-meta','mg-smedio','mg-sposicao'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('mg-prazo').value='';
-  document.getElementById('mg-ddec').value='';
-  document.getElementById('mg-dtotal').value='252';
-  document.getElementById('mg-dash').style.display='none';
-  document.getElementById('mg-vazio').style.display='flex';
-  document.getElementById('notif-mega').className='notif';
-  document.querySelectorAll('#megasim .btn-prazo').forEach(b=>b.classList.remove('on'));
+  ['mg-nome','mg-valor','mg-meta','mg-smedio','mg-sposicao'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('mg-ddec').value  = '';
+  document.getElementById('mg-dtotal').value = '252';
+  document.getElementById('mg-periodo').value = '';
+  ['mg-p-mes','mg-p-ano','mg-p-m12','mg-p-m24'].forEach(id=>{
+    const b=document.getElementById(id); if(b) b.classList.remove('on');
+  });
+  document.getElementById('mg-dash').style.display  = 'none';
+  document.getElementById('mg-vazio').style.display = 'flex';
+  document.getElementById('mg-vazio').innerHTML = `
+    <div style="font-size:52px;margin-bottom:14px">⚡</div>
+    <div style="font-size:15px;font-weight:700;color:#bbb">Selecione fundo, valor e período</div>
+    <div style="font-size:12px;color:#ccc;margin-top:6px">O resultado aparece automaticamente</div>`;
+  document.getElementById('notif-mega').className = 'notif';
   [mgVeloc,mgFundos,mgEvoluc].forEach(g=>{if(g) g.destroy();});
   mgVeloc=mgFundos=mgEvoluc=null;
 }
 
+
 // ============================================================
 // INIT
 // ============================================================
+
+// ============================================================
+// HOME
+// ============================================================
+function irParaAba(tabId) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.mod').forEach(m => m.classList.remove('on'));
+  const btn = document.querySelector(`.tab[data-tab="${tabId}"]`);
+  const sec = document.getElementById(tabId);
+  if (btn) btn.classList.add('on');
+  if (sec) sec.classList.add('on');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function irParaSimulador(tabId, selectId, nomeFundo) {
+  irParaAba(tabId);
+  setTimeout(() => {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    for (let i=0; i<sel.options.length; i++) {
+      if (sel.options[i].getAttribute('data-nome') === nomeFundo) {
+        sel.selectedIndex = i;
+        break;
+      }
+    }
+  }, 100);
+}
+
+function renderizarHome() {
+  // ── Indicadores de mercado da aba Benchmarks ──
+  const cdi  = DADOS_BENCH.find(b => b.ind === 'CDI');
+  const poup = DADOS_BENCH.find(b => b.ind === 'Poupança');
+  const selc = DADOS_BENCH.find(b => b.ind === 'SELIC');
+  const ibov = DADOS_BENCH.find(b => b.ind === 'IBOVESPA');
+
+  const fmtInd = v => v !== null && v !== undefined ? `${String(v).replace('.',',')}%` : '—';
+
+  if (cdi)  document.getElementById('home-cdi').textContent  = fmtInd(cdi.mes);
+  if (poup) document.getElementById('home-poup').textContent = fmtInd(poup.mes);
+  if (selc) document.getElementById('home-selic').textContent = fmtInd(selc.mes);
+  if (ibov) {
+    const el = document.getElementById('home-ibov');
+    el.textContent = fmtInd(ibov.mes);
+    el.style.color = (ibov.mes !== null && ibov.mes < 0) ? '#ffb3b3' : '#fff';
+  }
+
+  // Período de referência
+  const periodo = DADOS_RENT[0]?.inicio ? '' : '';
+  const elPer = document.getElementById('home-periodo');
+  const rentPeriodo = document.getElementById('rent-periodo')?.textContent;
+  if (elPer && rentPeriodo) elPer.textContent = rentPeriodo;
+
+  // Status icon
+  const statusEl = document.getElementById('rent-status');
+  const homeIcon = document.getElementById('home-status-icon');
+  if (homeIcon) {
+    homeIcon.textContent = statusEl?.innerHTML?.includes('✅') ? '✅' : '📌';
+  }
+
+  // ── Fundo em destaque: melhor rentabilidade em 12 meses ──
+  const fundos12m = DADOS_RENT.filter(f => f.m12 !== null && f.m12 !== undefined);
+  if (fundos12m.length > 0) {
+    const melhor = fundos12m.reduce((a,b) => (toN(b.m12)||0) > (toN(a.m12)||0) ? b : a);
+    document.getElementById('home-dest-nome').textContent = melhor.nome;
+    document.getElementById('home-dest-mes').textContent  = melhor.mes  !== null ? `${String(melhor.mes).replace('.',',')}%`  : '—';
+    document.getElementById('home-dest-ano').textContent  = melhor.ano  !== null ? `${String(melhor.ano).replace('.',',')}%`  : '—';
+    document.getElementById('home-dest-m12').textContent  = melhor.m12  !== null ? `${String(melhor.m12).replace('.',',')}%`  : '—';
+    document.getElementById('home-dest-m24').textContent  = melhor.m24  !== null ? `${String(melhor.m24).replace('.',',')}%`  : '—';
+    document.getElementById('home-dest-badges').innerHTML =
+      `${badgeBM(melhor.bm)} ${badgeRisco(RISCO_MAP[melhor.nome]||'—')}
+       <span class="bbm" style="background:#f3e8ff;color:#6b3fa0">${CLASSE_MAP[melhor.nome]||''}</span>`;
+    document.getElementById('home-destaque-wrap').style.display = 'block';
+  }
+}
+
 window.addEventListener('DOMContentLoaded',async()=>{
+  reconstruirMapas();
   popularSelects();
   renderRent();
   renderOp();
-  await carregarGS();
-  popularSelects();
+  renderizarHome();         // home com dados locais
+  await carregarGS();       // busca planilha
+  renderizarHome();         // re-renderiza com dados atualizados
 });
+
+// ============================================================
+// FAQ
+// ============================================================
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+function filtrarFaq() {
+  const q = document.getElementById('faq-busca').value.toLowerCase().trim();
+  const items     = document.querySelectorAll('.faq-item');
+  const catTitles = document.querySelectorAll('.faq-cat-title');
+  let visible = 0;
+  items.forEach(item => {
+    const show = !q || item.textContent.toLowerCase().includes(q);
+    item.style.display = show ? 'block' : 'none';
+    if (show) { visible++; if(q) item.classList.add('open'); }
+    else item.classList.remove('open');
+  });
+  catTitles.forEach(cat => {
+    const any = [...document.querySelectorAll(`.faq-item[data-cat="${cat.dataset.cat}"]`)]
+                  .some(i => i.style.display !== 'none');
+    cat.style.display = any ? 'flex' : 'none';
+  });
+  const vazio = document.getElementById('faq-vazio');
+  if (vazio) vazio.style.display = visible === 0 ? 'block' : 'none';
+}
 </script>
 </body>
 </html>
