@@ -2249,6 +2249,39 @@ function filtrarFaq() {
   const vazio = document.getElementById('faq-vazio');
   if (vazio) vazio.style.display = visible === 0 ? 'block' : 'none';
 }
+
+// ============================================================
+// SUGESTÕES & MELHORIAS
+// ============================================================
+function abrirFormSugestao() {
+  document.getElementById('modal-sugestao').style.display = 'block';
+}
+function fecharFormSugestao(e) {
+  if (e.target === document.getElementById('modal-sugestao'))
+    document.getElementById('modal-sugestao').style.display = 'none';
+}
 </script>
+
+<!-- BOTÃO FLUTUANTE SUGESTÕES -->
+<button onclick="abrirFormSugestao()" style="position:fixed;bottom:28px;right:28px;z-index:8888;background:var(--red);color:#fff;border:none;border-radius:50px;padding:13px 22px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(166,25,60,.4);display:flex;align-items:center;gap:8px;transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(166,25,60,.5)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 20px rgba(166,25,60,.4)'">
+  💡 Sugerir melhoria
+</button>
+
+<!-- MODAL SUGESTÕES -->
+<div id="modal-sugestao" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);animation:fadeIn .2s ease" onclick="fecharFormSugestao(event)">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:680px;max-width:95vw;max-height:90vh;background:#fff;border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <!-- Header do modal -->
+    <div style="background:var(--red);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:11px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px">Hub de Fundos BNB</div>
+        <div style="font-size:17px;font-weight:800;color:#fff;margin-top:2px">💡 Sugestões & Melhorias</div>
+      </div>
+      <button onclick="document.getElementById('modal-sugestao').style.display='none'" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;width:34px;height:34px;border-radius:50%;cursor:pointer;font-weight:700;line-height:1;font-family:'Sora',sans-serif">×</button>
+    </div>
+    <!-- iframe do Forms -->
+    <iframe src="https://forms.office.com/r/f68p3mxARB?embed=true" frameborder="0" marginwidth="0" marginheight="0" style="flex:1;width:100%;min-height:460px;border:none" allowfullscreen webkitallowfullscreen mozallowfullscreen msallowfullscreen></iframe>
+  </div>
+</div>
+
 </body>
 </html>
